@@ -1,2 +1,265 @@
 @import 'tailwindcss';
-@plugin '@tailwindcss/typography';
+
+/* ========================================
+   STAR FOX 3 — Theme & Global Styles
+   ======================================== */
+
+@theme {
+	/* --- Fonts --- */
+	--font-sans: 'Poppins', 'Verdana', 'Arial', sans-serif;
+	--font-arcade: 'Press Start 2P', cursive, sans-serif;
+
+	/* --- Colors --- */
+	--color-bg: #1e1e2f;
+	--color-text: #ffffff;
+	--color-interactive: #fbbf24;
+
+	/* --- Animations --- */
+	--animate-drift: drift 60s linear infinite;
+	--animate-drift-reverse: drift 45s linear infinite reverse;
+	--animate-drift-slow: drift-drift 80s linear infinite;
+	--animate-flicker: flicker 6s ease-in-out infinite;
+	--animate-float: float 2.5s ease-in-out infinite;
+	--animate-pulse-glow: pulse-glow 2.5s ease-in-out infinite;
+
+	/* --- Animaciones de entrada (primera impresión) --- */
+	--animate-zoom-in: zoom-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+	--animate-drop-in: drop-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+	--animate-fade-in-up: fade-in-up 0.8s ease-out both;
+	--animate-fade-in: fade-in 0.4s ease both;
+	--animate-slide-up: slide-up 0.3s ease both;
+	--animate-scale-in: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+	/* --- Animaciones de transición (warp/agujero negro) --- */
+	--animate-black-hole: black-hole 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+
+	@keyframes drift {
+		from {
+			background-position: 0px 0px;
+		}
+
+		to {
+			background-position: 500px 1000px;
+		}
+	}
+
+	@keyframes drift-drift {
+		from {
+			background-position: 0px 0px;
+		}
+
+		to {
+			background-position: -300px 600px;
+		}
+	}
+
+	@keyframes flicker {
+		0%, 100% {
+			opacity: 1;
+			text-shadow: 0 0 8px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.8),
+				0 0 30px rgba(251, 191, 36, 0.5), 0 0 60px rgba(251, 191, 36, 0.25);
+		}
+		5% {
+			opacity: 0.85;
+		}
+		10% {
+			opacity: 1;
+		}
+		15% {
+			opacity: 0.9;
+		}
+		20% {
+			opacity: 1;
+		}
+		50% {
+			text-shadow: 0 0 8px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.8),
+				0 0 40px rgba(251, 191, 36, 0.6), 0 0 80px rgba(251, 191, 36, 0.35);
+		}
+	}
+
+	@keyframes float {
+		0%, 100% {
+			opacity: 0.7;
+			transform: translateY(0px);
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-6px);
+		}
+	}
+
+	@keyframes pulse-glow {
+		0%, 100% {
+			box-shadow: 0 0 15px rgba(251, 191, 36, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.2);
+		}
+		50% {
+			box-shadow: 0 0 35px rgba(251, 191, 36, 0.8), inset 0 0 25px rgba(251, 191, 36, 0.4);
+		}
+	}
+
+	@keyframes zoom-in {
+		0% {
+			opacity: 0;
+			filter: blur(10px);
+			transform: scale(0.3);
+		}
+		100% {
+			opacity: 1;
+			filter: blur(0px);
+			transform: scale(1);
+		}
+	}
+
+	@keyframes drop-in {
+		0% {
+			opacity: 0;
+			transform: translateY(-60px) scale(0.8);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0px) scale(1);
+		}
+	}
+
+	@keyframes fade-in {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
+	@keyframes fade-in-up {
+		0% {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0px);
+		}
+	}
+
+	@keyframes scale-in {
+		0% {
+			opacity: 0;
+			transform: scale(0);
+		}
+		100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@keyframes scan-vertical {
+		0%,
+		100% {
+			transform: translateY(-50%) translateY(-20px);
+		}
+
+		50% {
+			transform: translateY(-50%) translateY(20px);
+		}
+	}
+
+	@keyframes black-hole {
+		0% {
+			transform: scale(1) rotate(0deg);
+			filter: blur(0px);
+			opacity: 1;
+		}
+		30% {
+			transform: scale(0.85) rotate(90deg);
+			filter: blur(1px);
+			opacity: 0.9;
+		}
+		60% {
+			transform: scale(0.4) rotate(270deg);
+			filter: blur(6px);
+			opacity: 0.6;
+		}
+		100% {
+			transform: scale(0) rotate(540deg);
+			filter: blur(20px);
+			opacity: 0;
+		}
+	}
+
+	/* --- Sombras Arcade --- */
+	--shadow-arcade:
+		0 0 20px rgba(251, 191, 36, 0.35), 0 0 50px rgba(251, 191, 36, 0.15),
+		inset 0 0 20px rgba(251, 191, 36, 0.1);
+	--shadow-arcade-lg:
+		0 0 35px rgba(251, 191, 36, 0.55), 0 0 80px rgba(251, 191, 36, 0.3),
+		inset 0 0 30px rgba(251, 191, 36, 0.15);
+}
+
+/* --- Utilidades custom --- */
+@utility text-stroke {
+	-webkit-text-stroke-width: var(--value);
+	-webkit-text-stroke-color: currentColor;
+}
+
+@utility text-fill {
+	color: transparent;
+	-webkit-text-fill-color: transparent;
+}
+
+/* --- Font Faces --- */
+@font-face {
+	font-family: 'Poppins';
+	src: url('/fonts/Poppins/Poppins-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Poppins';
+	src: url('/fonts/Poppins/Poppins-SemiBold.woff2') format('woff2');
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Poppins';
+	src: url('/fonts/Poppins/Poppins-Bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Press Start 2P';
+	src: url('/fonts/Press_Start_2P/PressStart2P-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* --- Global Base --- */
+html, body {
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	font-family: var(--font-sans);
+	-webkit-tap-highlight-color: transparent;
+	margin: 0;
+	padding: 0;
+	line-height: 1.5;
+	overflow-x: hidden;
+}
+
+body {
+	min-height: 100dvh;
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+	}
+}
