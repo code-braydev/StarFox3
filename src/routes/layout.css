@@ -33,6 +33,11 @@
 	/* --- Animaciones de transición (warp/agujero negro) --- */
 	--animate-black-hole: black-hole 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 
+	/* --- Animaciones del mapa --- */
+	--animate-pulse-node: pulse-node 2s ease-in-out infinite;
+	--animate-float-spaceship: float-spaceship 2s ease-in-out infinite;
+	--animate-path-glow: path-glow 3s ease-in-out infinite;
+
 	@keyframes drift {
 		from {
 			background-position: 0px 0px;
@@ -183,6 +188,33 @@
 			transform: scale(0) rotate(540deg);
 			filter: blur(20px);
 			opacity: 0;
+		}
+	}
+
+	@keyframes pulse-node {
+		0%, 100% {
+			box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+		}
+		50% {
+			box-shadow: 0 0 25px rgba(251, 191, 36, 0.8), 0 0 40px rgba(251, 191, 36, 0.4);
+		}
+	}
+
+	@keyframes float-spaceship {
+		0%, 100% {
+			transform: translateY(0px) rotate(-5deg);
+		}
+		50% {
+			transform: translateY(-8px) rotate(5deg);
+		}
+	}
+
+	@keyframes path-glow {
+		0%, 100% {
+			opacity: 0.6;
+		}
+		50% {
+			opacity: 1;
 		}
 	}
 

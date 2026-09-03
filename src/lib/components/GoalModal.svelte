@@ -8,12 +8,39 @@
 	let isWarping = $state(false);
 
 	const goals = [
-		{ value: 'dominate', emoji: '🏆', label: 'Dominar', desc: '¡A por las 3 estrellas!', color: '#FBBF24', btnFrom: '#FBBF24', btnTo: '#f59e0b', glow: 'rgba(251,191,36,0.4)' },
-		{ value: 'train', emoji: '🎯', label: 'Entrenar', desc: 'Repite y afianza', color: '#3b82f6', btnFrom: '#3b82f6', btnTo: '#2563eb', glow: 'rgba(59,130,246,0.4)' },
-		{ value: 'explore', emoji: '🌟', label: 'Explorar', desc: 'Descubre a tu ritmo', color: '#22c55e', btnFrom: '#22c55e', btnTo: '#16a34a', glow: 'rgba(34,197,94,0.4)' }
+		{
+			value: 'dominate',
+			emoji: '🏆',
+			label: 'Dominar',
+			desc: '¡A por las 3 estrellas!',
+			color: '#FBBF24',
+			btnFrom: '#FBBF24',
+			btnTo: '#f59e0b',
+			glow: 'rgba(251,191,36,0.4)'
+		},
+		{
+			value: 'train',
+			emoji: '🎯',
+			label: 'Entrenar',
+			desc: 'Repite y afianza',
+			color: '#3b82f6',
+			btnFrom: '#3b82f6',
+			btnTo: '#2563eb',
+			glow: 'rgba(59,130,246,0.4)'
+		},
+		{
+			value: 'explore',
+			emoji: '🌟',
+			label: 'Explorar',
+			desc: 'Descubre a tu ritmo',
+			color: '#22c55e',
+			btnFrom: '#22c55e',
+			btnTo: '#16a34a',
+			glow: 'rgba(34,197,94,0.4)'
+		}
 	];
 
-	let selectedColors = $derived(goals.find(g => g.value === selectedGoal) ?? goals[0]);
+	let selectedColors = $derived(goals.find((g) => g.value === selectedGoal) ?? goals[0]);
 
 	function handleAccept() {
 		if (!selectedGoal || isWarping) return;
@@ -26,7 +53,9 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-[1000] flex items-center justify-center p-4 transition-colors duration-500 {isWarping ? 'bg-black' : 'bg-black/80'}"
+		class="fixed inset-0 z-[1000] flex items-center justify-center p-4 transition-colors duration-500 {isWarping
+			? 'bg-black'
+			: 'bg-black/80'}"
 		role="dialog"
 		aria-modal="true"
 		aria-label="Seleccionar meta"
@@ -46,19 +75,20 @@
 			<h2 class="mb-2 text-[1.6rem] font-bold text-white max-md:text-[1.4rem]">
 				¡Elige tu meta, Piloto!
 			</h2>
-			<p class="mb-6 text-[1rem] text-[#94A3B8]">
-				¿Cómo quieres jugar hoy?
-			</p>
+			<p class="mb-6 text-[1rem] text-[#94A3B8]">¿Cómo quieres jugar hoy?</p>
 
 			<!-- Goal buttons -->
 			<div class="mb-6 flex justify-center gap-3">
-				{#each goals as goal}
+				{#each goals as goal (goal.value)}
 					<button
-						class="flex flex-1 flex-col items-center gap-1.5 rounded-2xl border-[3px] border-[#6366f1] bg-[#1E1E2F] px-4 py-4 text-white transition-all duration-300 hover:scale-105 cursor-pointer data-[selected=true]:bg-[#252540]"
+						class="flex flex-1 cursor-pointer flex-col items-center gap-1.5 rounded-2xl border-[3px] border-[#6366f1] bg-[#1E1E2F] px-4 py-4 text-white transition-all duration-300 hover:scale-105 data-[selected=true]:bg-[#252540]"
 						style:border-color={selectedGoal === goal.value ? goal.color : undefined}
 						style:box-shadow={selectedGoal === goal.value ? `0 0 14px ${goal.glow}` : undefined}
 						data-selected={selectedGoal === goal.value}
-						onclick={() => { selectedGoal = goal.value; if (game.soundEnabled) playClick(); }}
+						onclick={() => {
+							selectedGoal = goal.value;
+							if (game.soundEnabled) playClick();
+						}}
 					>
 						<span class="text-3xl">{goal.emoji}</span>
 						<span class="text-[0.85rem] font-bold">{goal.label}</span>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Fuselaje principal -->
+  <path d="M32 4 L38 28 L36 52 L28 52 L26 28 Z" fill="#E5E7EB" stroke="#FBBF24" stroke-width="2"/>
+  <!-- Ala izquierda -->
+  <path d="M26 28 L8 40 L12 42 L28 34 Z" fill="#6366F1" stroke="#FBBF24" stroke-width="1.5"/>
+  <!-- Ala derecha -->
+  <path d="M38 28 L56 40 L52 42 L36 34 Z" fill="#6366F1" stroke="#FBBF24" stroke-width="1.5"/>
+  <!-- Cabina -->
+  <ellipse cx="32" cy="20" rx="4" ry="6" fill="#38BDF8" opacity="0.8"/>
+  <!-- Propulsor izquierdo -->
+  <rect x="27" y="50" width="4" height="6" rx="1" fill="#F97316"/>
+  <!-- Propulsor derecho -->
+  <rect x="33" y="50" width="4" height="6" rx="1" fill="#F97316"/>
+  <!-- Llama propulsión -->
+  <path d="M29 56 L32 62 L35 56" fill="#FBBF24" opacity="0.9"/>
+  <!-- Brillo cabina -->
+  <ellipse cx="31" cy="18" rx="1.5" ry="2" fill="white" opacity="0.6"/>
+</svg>
