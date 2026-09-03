@@ -91,7 +91,7 @@
 					Elige tu personaje
 				</p>
 				<div class="flex justify-center gap-3">
-					{#each genders as g}
+					{#each genders as g (g.value)}
 						<button
 							class="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-[3px] border-[#6366f1] bg-[#1E1E2F] px-5 py-4 transition-all duration-300 hover:scale-105 data-[selected=true]:bg-[#252540]"
 							style:border-color={selectedGender === g.value ? colors.accent : undefined}
