@@ -3,6 +3,7 @@ node_modules
 .cursor/
 .idea/
 .antigravity/
+docs/
 # Output
 .output
 .vercel
