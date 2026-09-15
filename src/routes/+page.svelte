@@ -51,14 +51,26 @@
 	></div>
 
 	<!-- Líneas laterales doradas -->
-	<div class="fixed top-1/2 left-12 z-30 h-32 w-[4px] -translate-y-1/2 bg-[linear-gradient(to_bottom,transparent,rgba(251,191,36,0.95),transparent)]"></div>
-	<div class="fixed top-1/2 right-12 z-30 h-32 w-[4px] -translate-y-1/2 bg-[linear-gradient(to_bottom,transparent,rgba(251,191,36,0.95),transparent)]"></div>
+	<div
+		class="fixed top-1/2 left-12 z-30 h-32 w-[4px] -translate-y-1/2 bg-[linear-gradient(to_bottom,transparent,rgba(251,191,36,0.95),transparent)]"
+	></div>
+	<div
+		class="fixed top-1/2 right-12 z-30 h-32 w-[4px] -translate-y-1/2 bg-[linear-gradient(to_bottom,transparent,rgba(251,191,36,0.95),transparent)]"
+	></div>
 
 	<!-- Esquinas decorativas -->
-	<div class="fixed top-8 left-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-t-[3px] border-l-[3px] border-interactive/80"></div>
-	<div class="fixed top-8 right-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-t-[3px] border-r-[3px] border-interactive/80"></div>
-	<div class="fixed bottom-8 left-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-b-[3px] border-l-[3px] border-interactive/80"></div>
-	<div class="fixed right-8 bottom-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-r-[3px] border-b-[3px] border-interactive/80"></div>
+	<div
+		class="fixed top-8 left-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-t-[3px] border-l-[3px] border-interactive/80"
+	></div>
+	<div
+		class="fixed top-8 right-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-t-[3px] border-r-[3px] border-interactive/80"
+	></div>
+	<div
+		class="fixed bottom-8 left-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-b-[3px] border-l-[3px] border-interactive/80"
+	></div>
+	<div
+		class="fixed right-8 bottom-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-r-[3px] border-b-[3px] border-interactive/80"
+	></div>
 
 	<!-- Titulo -->
 	<h1
@@ -68,19 +80,35 @@
 	</h1>
 
 	<!-- Botón Jugar -->
-	<div class="relative z-20 flex animate-drop-in flex-col items-center gap-4" style="animation-delay: 0.3s">
+	<div
+		class="relative z-20 flex animate-drop-in flex-col items-center gap-4"
+		style="animation-delay: 0.3s"
+	>
 		<button
 			class="group flex h-[100px] w-[100px] animate-pulse-glow cursor-pointer items-center justify-center rounded-full border-[3px] border-[#FBBF24] bg-[radial-gradient(circle_at_40%_35%,rgba(251,191,36,0.25),rgba(79,70,229,0.4)_70%,rgba(30,30,47,0.8))] transition-all duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] hover:scale-110 hover:shadow-arcade-lg focus-visible:outline-[4px] focus-visible:outline-offset-[6px] focus-visible:outline-[#FBBF24] active:scale-95 max-md:h-[80px] max-md:w-[80px]"
 			aria-label="Iniciar misión"
 			onclick={onPlay}
 		>
-			<svg class="ml-1 h-10 w-10 text-[#FBBF24] transition-transform duration-200 group-hover:scale-110 max-md:h-8 max-md:w-8" viewBox="0 0 24 24" fill="currentColor">
+			<svg
+				class="ml-1 h-10 w-10 text-[#FBBF24] transition-transform duration-200 group-hover:scale-110 max-md:h-8 max-md:w-8"
+				viewBox="0 0 24 24"
+				fill="currentColor"
+			>
 				<path d="M8 5v14l11-7z" />
 			</svg>
 		</button>
-		<span class="animate-float font-sans text-base tracking-[0.15em] text-[#94A3B8] [text-shadow:0_1px_4px_rgba(0,0,0,0.7)] max-md:text-[0.85rem]">INICIAR MISIÓN</span>
+		<span
+			class="animate-float font-sans text-base tracking-[0.15em] text-[#94A3B8] [text-shadow:0_1px_4px_rgba(0,0,0,0.7)] max-md:text-[0.85rem]"
+			>INICIAR MISIÓN</span
+		>
 	</div>
 </div>
 
 <Modal open={showNameModal} onClose={onNameModalClose} />
-<GoalModal open={showGoalModal} onClose={() => { showGoalModal = false; goto('/map'); }} />
+<GoalModal
+	open={showGoalModal}
+	onClose={() => {
+		showGoalModal = false;
+		goto('/map');
+	}}
+/>

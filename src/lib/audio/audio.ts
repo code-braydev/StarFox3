@@ -7,7 +7,12 @@ function getContext(): AudioContext {
 	return audioCtx;
 }
 
-function playTone(frequency: number, duration: number, type: OscillatorType = 'sine', volume = 0.3) {
+function playTone(
+	frequency: number,
+	duration: number,
+	type: OscillatorType = 'sine',
+	volume = 0.3
+) {
 	try {
 		const ctx = getContext();
 		const osc = ctx.createOscillator();
@@ -66,12 +71,15 @@ export function playClick() {
 }
 
 export function playStar() {
-	playSequence([
-		{ freq: 1047, dur: 0.1, delay: 0 },
-		{ freq: 1319, dur: 0.1, delay: 0.08 },
-		{ freq: 1568, dur: 0.15, delay: 0.16 },
-		{ freq: 2093, dur: 0.2, delay: 0.24 }
-	], 0.2);
+	playSequence(
+		[
+			{ freq: 1047, dur: 0.1, delay: 0 },
+			{ freq: 1319, dur: 0.1, delay: 0.08 },
+			{ freq: 1568, dur: 0.15, delay: 0.16 },
+			{ freq: 2093, dur: 0.2, delay: 0.24 }
+		],
+		0.2
+	);
 }
 
 export function playGem() {
@@ -80,12 +88,15 @@ export function playGem() {
 }
 
 export function playLevelComplete() {
-	playSequence([
-		{ freq: 523, dur: 0.12, delay: 0 },
-		{ freq: 659, dur: 0.12, delay: 0.1 },
-		{ freq: 784, dur: 0.12, delay: 0.2 },
-		{ freq: 1047, dur: 0.3, delay: 0.3 }
-	], 0.25);
+	playSequence(
+		[
+			{ freq: 523, dur: 0.12, delay: 0 },
+			{ freq: 659, dur: 0.12, delay: 0.1 },
+			{ freq: 784, dur: 0.12, delay: 0.2 },
+			{ freq: 1047, dur: 0.3, delay: 0.3 }
+		],
+		0.25
+	);
 }
 
 export function playBlackHole() {
@@ -134,6 +145,67 @@ export function playBlackHole() {
 		gain3.connect(ctx.destination);
 		osc3.start(now);
 		osc3.stop(now + 1.2);
+	} catch {
+		// AudioContext not available
+	}
+}
+
+export function playTypewriter() {
+	try {
+		const ctx = getContext();
+		const now = ctx.currentTime;
+
+		// Click breve y agudo (mecanismo de máquina de escribir)
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+		osc.type = 'square';
+		osc.frequency.setValueAtTime(1800, now);
+		osc.frequency.exponentialRampToValueAtTime(800, now + 0.03);
+		gain.gain.setValueAtTime(0.08, now);
+		gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.04);
+
+		// Ruido mecánico sutil
+		const bufferSize = ctx.sampleRate * 0.03;
+		const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+		const data = buffer.getChannelData(0);
+		for (let i = 0; i < bufferSize; i++) {
+			data[i] = (Math.random() * 2 - 1) * 0.03;
+		}
+		const noise = ctx.createBufferSource();
+		const noiseGain = ctx.createGain();
+		noise.buffer = buffer;
+		noiseGain.gain.setValueAtTime(0.15, now);
+		noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+		noise.connect(noiseGain);
+		noiseGain.connect(ctx.destination);
+		noise.start(now);
+		noise.stop(now + 0.03);
+	} catch {
+		// AudioContext not available
+	}
+}
+
+export function playDialogueAdvance() {
+	try {
+		const ctx = getContext();
+		const now = ctx.currentTime;
+
+		// Click de confirmación (avanzar diálogo)
+		const osc = ctx.createOscillator();
+		const gain = ctx.createGain();
+		osc.type = 'sine';
+		osc.frequency.setValueAtTime(600, now);
+		osc.frequency.exponentialRampToValueAtTime(900, now + 0.06);
+		gain.gain.setValueAtTime(0.12, now);
+		gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+		osc.connect(gain);
+		gain.connect(ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.08);
 	} catch {
 		// AudioContext not available
 	}
