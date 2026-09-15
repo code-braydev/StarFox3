@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { game } from '$lib/stores/game.svelte';
-	import avartarFoxy from '$lib/assets/icons/fox.svg';
 
-	let { message, visible = true }: {
+	let {
+		message,
+		visible = true
+	}: {
 		message?: string;
 		visible?: boolean;
 	} = $props();
@@ -10,8 +12,8 @@
 	let dialogMessage = $derived(message ?? getAutoMessage());
 
 	function getAutoMessage(): string {
-		const completed = game.progress.tablesCompleted.length;
-		const total = 8;
+		const completed = game.progress.levelsCompleted.length;
+		const total = 25;
 		const name = game.player.name || 'Piloto';
 
 		if (completed === 0) {
@@ -29,16 +31,24 @@
 </script>
 
 {#if visible}
-	<div class="flex items-start gap-3 animate-fade-in-up">
+	<div class="flex animate-fade-in-up items-start gap-3">
 		<!-- Avatar de Foxy -->
 		<div class="flex-shrink-0">
-			<img src={avartarFoxy} alt="Foxy" class="h-12 w-12 rounded-full border-2 border-amber-400 bg-[#1E1E2F] p-1" />
+			<img
+				src="/img/avatar-foxy.webp"
+				alt="Foxy"
+				class="h-12 w-12 rounded-full border-2 border-amber-400 bg-[#1E1E2F] p-1"
+			/>
 		</div>
 
 		<!-- Speech bubble -->
-		<div class="relative rounded-2xl border border-amber-400/30 bg-gradient-to-br from-[#252540] to-[#1a1a3e] px-5 py-3 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
+		<div
+			class="relative rounded-2xl border border-amber-400/30 bg-gradient-to-br from-[#252540] to-[#1a1a3e] px-5 py-3 shadow-[0_0_15px_rgba(251,191,36,0.15)]"
+		>
 			<!-- Flecha del speech bubble -->
-			<div class="absolute -left-2 top-4 h-0 w-0 border-t-[6px] border-r-[8px] border-b-[6px] border-t-transparent border-r-[#252540] border-b-transparent"></div>
+			<div
+				class="absolute top-4 -left-2 h-0 w-0 border-t-[6px] border-r-[8px] border-b-[6px] border-t-transparent border-r-[#252540] border-b-transparent"
+			></div>
 
 			<p class="text-[0.85rem] leading-relaxed text-[#94A3B8] max-md:text-[0.8rem]">
 				{dialogMessage}
