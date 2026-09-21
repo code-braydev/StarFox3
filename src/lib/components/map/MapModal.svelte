@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { playClick, playSuccess } from '$lib/audio/audio';
 	import { game } from '$lib/stores/game.svelte';
 	import spaceshipSvg from '$lib/assets/icons/spaceship.svg';
@@ -31,10 +32,7 @@
 	function handlePlay() {
 		if (game.soundEnabled) playSuccess();
 		onClose();
-		const route = `/map/${table}`;
-		setTimeout(() => {
-			window.location.href = route;
-		}, 50);
+		goto(`/map/${table}`);
 	}
 
 	function handleClose() {

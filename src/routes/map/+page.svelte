@@ -66,14 +66,14 @@
 
 	<!-- Header -->
 	<header
-		class="relative z-20 flex w-full items-center justify-between px-6 py-4 max-md:px-4 max-md:py-3"
+		class="relative z-20 grid w-full grid-cols-[1fr_auto_1fr] items-center px-6 py-4 max-md:px-4 max-md:py-3"
 	>
-		<div class="flex items-center gap-3">
+		<div class="flex items-center justify-start gap-3">
 			<span class="text-lg max-md:text-base">💎</span>
 			<span class="font-arcade text-sm text-[#FBBF24] max-md:text-xs">{game.progress.gems}</span>
 		</div>
-		<h1 class="font-arcade text-sm tracking-wider text-[#FBBF24] max-md:text-xs">MAPA ESTELAR</h1>
-		<div class="flex items-center gap-3">
+		<h1 class="text-center font-arcade text-sm tracking-wider text-[#FBBF24] max-md:text-xs">MAPA ESTELAR</h1>
+		<div class="flex items-center justify-end gap-3">
 			<span class="text-lg max-md:text-base">⭐</span>
 			<span class="font-arcade text-sm text-[#FBBF24] max-md:text-xs">
 				{game.progress.levelsCompleted.length}/25
@@ -120,11 +120,11 @@
 
 		<!-- Fase 1 -->
 		<div class="w-full">
-			<div class="mb-3 flex items-center gap-2">
+			<div class="mb-3 flex items-center justify-center gap-2">
 				<div class="h-3 w-3 rounded-full" style="background-color: {phaseColors[1]}"></div>
 				<h2 class="text-xs font-bold" style="color: {phaseColors[1]}">{phaseNames[1]}</h2>
 			</div>
-			<div class="grid grid-cols-5 gap-3 max-md:grid-cols-3 max-md:gap-2">
+			<div class="flex flex-wrap justify-center gap-4 max-md:gap-3">
 				{#each phase1 as lvl (lvl)}
 					<div class="flex items-center justify-center">
 						<MapNode
@@ -140,11 +140,11 @@
 
 		<!-- Fase 2 -->
 		<div class="w-full">
-			<div class="mb-3 flex items-center gap-2">
+			<div class="mb-3 flex items-center justify-center gap-2">
 				<div class="h-3 w-3 rounded-full" style="background-color: {phaseColors[2]}"></div>
 				<h2 class="text-xs font-bold" style="color: {phaseColors[2]}">{phaseNames[2]}</h2>
 			</div>
-			<div class="grid grid-cols-4 gap-3 max-md:grid-cols-3 max-md:gap-2">
+			<div class="flex flex-wrap justify-center gap-4 max-md:gap-3">
 				{#each phase2 as lvl (lvl)}
 					<div class="flex items-center justify-center">
 						<MapNode
@@ -160,11 +160,11 @@
 
 		<!-- Fase 3 -->
 		<div class="w-full">
-			<div class="mb-3 flex items-center gap-2">
+			<div class="mb-3 flex items-center justify-center gap-2">
 				<div class="h-3 w-3 rounded-full" style="background-color: {phaseColors[3]}"></div>
 				<h2 class="text-xs font-bold" style="color: {phaseColors[3]}">{phaseNames[3]}</h2>
 			</div>
-			<div class="grid grid-cols-4 gap-3 max-md:grid-cols-2 max-md:gap-2">
+			<div class="flex flex-wrap justify-center gap-4 max-md:gap-3">
 				{#each phase3 as lvl (lvl)}
 					<div class="flex items-center justify-center">
 						<MapNode

@@ -7,7 +7,12 @@
 		totalQuestions,
 		energyPercent,
 		a,
-		b
+		b,
+		questionType = 'multiply',
+		displayPrompt = `${a} × ${b}`,
+		displayResult = '?',
+		geometryRows,
+		geometryCols
 	}: {
 		table: number;
 		questionIndex: number;
@@ -15,9 +20,27 @@
 		energyPercent: number;
 		a: number;
 		b: number;
+		questionType?: string;
+		displayPrompt?: string;
+		displayResult?: string;
+		geometryRows?: number;
+		geometryCols?: number;
 	} = $props();
 
 	let levelName = $derived(levelInfo[table]?.name ?? 'Nivel');
+	let promptLabel = $derived(
+		questionType === 'trueFalse'
+			? '¿ES CORRECTO?'
+			: questionType === 'geometry'
+				? 'CALCULAR ÁREA:'
+				: questionType === 'series'
+					? 'COMPLETAR SERIE:'
+					: questionType === 'shopping'
+						? 'CALCULAR TOTAL:'
+						: questionType === 'inverse'
+							? 'HALLAR INCÓGNITA:'
+							: 'CALIBRAR:'
+	);
 </script>
 
 <div
@@ -72,14 +95,36 @@
 
 	<!-- Operación actual -->
 	<div
-		class="mb-4 flex items-center justify-center gap-3 rounded-2xl border border-amber-400/20 bg-[#12122a] py-5 max-md:mb-3 max-md:py-4"
+		class="mb-4 flex flex-col items-center justify-center gap-2 rounded-2xl border border-amber-400/20 bg-[#12122a] py-5 px-4 text-center max-md:mb-3 max-md:py-4"
 	>
-		<span class="text-[0.7rem] text-gray-400 max-md:text-[0.6rem]">CALIBRAR:</span>
-		<span class="font-arcade text-3xl text-white max-md:text-2xl">
-			{a} × {b}
+		<span class="text-[0.7rem] font-bold tracking-wider text-amber-400/80 max-md:text-[0.6rem]">
+			{promptLabel}
 		</span>
-		<span class="font-arcade text-3xl text-amber-400 max-md:text-2xl">=</span>
-		<span class="font-arcade text-3xl text-amber-400/60 max-md:text-2xl">?</span>
+
+		{#if questionType === 'geometry' && geometryRows && geometryCols}
+			<!-- Grid de bloques visual -->
+			<div class="my-2 flex flex-col gap-1 items-center justify-center">
+				{#each Array(geometryRows) as _, r (r)}
+					<div class="flex gap-1">
+						{#each Array(geometryCols) as _, c (c)}
+							<div
+								class="h-4 w-4 rounded-sm bg-gradient-to-br from-amber-400 to-amber-600 shadow-[0_0_4px_rgba(251,191,36,0.6)]"
+							></div>
+						{/each}
+					</div>
+				{/each}
+			</div>
+		{/if}
+
+		<div class="flex items-center justify-center gap-3">
+			<span class="font-arcade text-2xl text-white max-md:text-xl">
+				{displayPrompt}
+			</span>
+			{#if displayResult}
+				<span class="font-arcade text-2xl text-amber-400 max-md:text-xl">=</span>
+				<span class="font-arcade text-2xl text-amber-300 max-md:text-xl">{displayResult}</span>
+			{/if}
+		</div>
 	</div>
 
 	<!-- Progreso -->

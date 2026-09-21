@@ -30,6 +30,14 @@
 		onRetry();
 	}
 
+	function handleNextLevel() {
+		if (table < 25) {
+			goto(`/map/${table + 1}`);
+		} else {
+			goto('/map');
+		}
+	}
+
 	$effect(() => {
 		const s = stars;
 		if (s > 0 && showStars === 0) {
@@ -108,19 +116,29 @@
 		</div>
 
 		<!-- Botones -->
-		<div class="flex gap-3">
-			<button
-				class="min-h-[50px] flex-1 cursor-pointer rounded-2xl border-2 border-gray-600 bg-transparent text-[0.9rem] font-bold text-gray-300 transition-all duration-200 hover:border-gray-400 hover:text-white active:scale-95"
-				onclick={handleBackToMap}
-			>
-				Volver al mapa
-			</button>
-			<button
-				class="min-h-[50px] flex-1 cursor-pointer rounded-2xl border-none bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-3 text-[0.9rem] font-bold text-[#1E1E2F] transition-all duration-200 hover:scale-105 hover:shadow-[0_0_20px_rgba(251,191,36,0.4)] active:scale-95"
-				onclick={handleRetry}
-			>
-				Reintentar
-			</button>
+		<div class="flex flex-col gap-3">
+			{#if table < 25}
+				<button
+					class="min-h-[50px] w-full cursor-pointer rounded-2xl border-none bg-gradient-to-r from-emerald-400 to-emerald-500 px-6 py-3 text-[0.95rem] font-bold text-[#1E1E2F] shadow-[0_0_20px_rgba(52,211,153,0.4)] transition-all duration-200 hover:scale-105 active:scale-95"
+					onclick={handleNextLevel}
+				>
+					¡Siguiente nivel! 🚀
+				</button>
+			{/if}
+			<div class="flex gap-3">
+				<button
+					class="min-h-[46px] flex-1 cursor-pointer rounded-2xl border-2 border-gray-600 bg-transparent text-[0.85rem] font-bold text-gray-300 transition-all duration-200 hover:border-gray-400 hover:text-white active:scale-95"
+					onclick={handleBackToMap}
+				>
+					Mapa
+				</button>
+				<button
+					class="min-h-[46px] flex-1 cursor-pointer rounded-2xl border-2 border-amber-400/50 bg-[#252540] px-4 py-2 text-[0.85rem] font-bold text-amber-300 transition-all duration-200 hover:border-amber-400 hover:text-white active:scale-95"
+					onclick={handleRetry}
+				>
+					Reintentar
+				</button>
+			</div>
 		</div>
 	</div>
 </div>

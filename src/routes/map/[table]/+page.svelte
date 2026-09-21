@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { game } from '$lib/stores/game.svelte';
@@ -29,11 +30,9 @@
 	let table = $derived(Number(page.params.table));
 	let level = $derived(levelInfo[table] ?? null);
 
-	function getOptionComponent(t: number) {
-		const levelData = levelInfo[t];
-		if (!levelData) return LeverOption;
-
-		switch (levelData.questionType) {
+	function getOptionComponent(t: number, qType?: string) {
+		const type = qType ?? levelInfo[t]?.questionType;
+		switch (type) {
 			case 'trueFalse':
 				return TrueFalseOption;
 			case 'inverse':
@@ -73,22 +72,26 @@
 		b: number;
 		answer: number;
 		options: number[];
+		questionType: string;
+		displayPrompt: string;
+		displayResult: string;
+		geometryRows?: number;
+		geometryCols?: number;
 	}
 
 	let questions = $state<Question[]>([]);
 	let currentIndex = $state(0);
 	let correctCount = $state(0);
 	let selectedAnswer = $state<number | null>(null);
-	let _feedbackVariant = $state<'idle' | 'correct' | 'wrong'>('idle');
+	let revealedWrong = $state<number[]>([]);
 	let foxyMood = $state<'idle' | 'celebrate' | 'encourage'>('idle');
 	let showComplete = $state(false);
 	let showFailed = $state(false);
-	let feedbackKey = $state(0);
-	let _gameState = $state<'playing' | 'completed' | 'failed'>('playing');
 
 	let timerSeconds = $state(0);
 	let timerMax = $state(30);
-	let timerInterval = $state<ReturnType<typeof setInterval> | null>(null);
+	let timerInterval: ReturnType<typeof setInterval> | null = null;
+	let actionTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	let totalQuestions = $derived(level?.questions.length ?? 10);
 	let currentQ = $derived(questions[currentIndex]);
@@ -127,13 +130,126 @@
 		return distractors.slice(0, 2);
 	}
 
+	function generateSmallDistractors(correct: number): number[] {
+		const distractors: number[] = [];
+		const candidates = [correct - 1, correct + 1, correct - 2, correct + 2, correct + 3, correct - 3];
+		for (const c of candidates) {
+			if (c > 0 && c !== correct && !distractors.includes(c)) distractors.push(c);
+			if (distractors.length >= 2) break;
+		}
+		while (distractors.length < 2) {
+			const fake = correct + Math.floor(Math.random() * 5) - 2;
+			if (fake > 0 && fake !== correct && !distractors.includes(fake)) distractors.push(fake);
+		}
+		return distractors.slice(0, 2);
+	}
+
 	function generateQuestions(): Question[] {
 		if (!level) return [];
+		const qType = level.questionType;
+
 		return level.questions.map((q) => {
+			if (qType === 'trueFalse') {
+				const isTrue = Math.random() < 0.5;
+				let shownProduct = q.a * q.b;
+				if (!isTrue) {
+					const delta = (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1);
+					shownProduct = q.a * q.b + delta;
+					if (shownProduct <= 0 || shownProduct === q.a * q.b) {
+						shownProduct = q.a * q.b + 2;
+					}
+				}
+				const answer = isTrue ? 1 : 0;
+				return {
+					a: q.a,
+					b: q.b,
+					answer,
+					options: [1, 0],
+					questionType: 'trueFalse',
+					displayPrompt: `${q.a} × ${q.b}`,
+					displayResult: `${shownProduct}`
+				};
+			}
+
+			if (qType === 'inverse') {
+				const answer = q.b;
+				const product = q.a * q.b;
+				const distractors = generateSmallDistractors(answer);
+				const options = shuffleArray([answer, ...distractors]);
+				return {
+					a: q.a,
+					b: q.b,
+					answer,
+					options,
+					questionType: 'inverse',
+					displayPrompt: `${q.a} × ?`,
+					displayResult: `${product}`
+				};
+			}
+
+			if (qType === 'geometry') {
+				const answer = q.a * q.b;
+				const distractors = generateDistractors(answer, q.a, q.b);
+				const options = shuffleArray([answer, ...distractors]);
+				return {
+					a: q.a,
+					b: q.b,
+					answer,
+					options,
+					questionType: 'geometry',
+					displayPrompt: `${q.a} × ${q.b}`,
+					displayResult: '?',
+					geometryRows: q.a,
+					geometryCols: q.b
+				};
+			}
+
+			if (qType === 'series') {
+				const answer = q.a * q.b;
+				const distractors = generateDistractors(answer, q.a, q.b);
+				const options = shuffleArray([answer, ...distractors]);
+				const n1 = q.a * Math.max(1, q.b - 3);
+				const n2 = q.a * Math.max(2, q.b - 2);
+				const n3 = q.a * Math.max(3, q.b - 1);
+				return {
+					a: q.a,
+					b: q.b,
+					answer,
+					options,
+					questionType: 'series',
+					displayPrompt: `${n1}, ${n2}, ${n3}, ?`,
+					displayResult: ''
+				};
+			}
+
+			if (qType === 'shopping') {
+				const answer = q.a * q.b;
+				const distractors = generateDistractors(answer, q.a, q.b);
+				const options = shuffleArray([answer, ...distractors]);
+				return {
+					a: q.a,
+					b: q.b,
+					answer,
+					options,
+					questionType: 'shopping',
+					displayPrompt: `${q.a} × $${q.b}`,
+					displayResult: '?'
+				};
+			}
+
+			// Modo estándar de multiplicación o mezclado
 			const answer = q.a * q.b;
 			const distractors = generateDistractors(answer, q.a, q.b);
 			const options = shuffleArray([answer, ...distractors]);
-			return { a: q.a, b: q.b, answer, options };
+			return {
+				a: q.a,
+				b: q.b,
+				answer,
+				options,
+				questionType: qType,
+				displayPrompt: `${q.a} × ${q.b}`,
+				displayResult: '?'
+			};
 		});
 	}
 
@@ -141,74 +257,88 @@
 		return arr[Math.floor(Math.random() * arr.length)];
 	}
 
+	function clearAllTimers() {
+		if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = null;
+		}
+		if (actionTimeout) {
+			clearTimeout(actionTimeout);
+			actionTimeout = null;
+		}
+	}
+
 	function startTimer() {
-		clearTimer();
+		if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = null;
+		}
 		if (!level || level.timer <= 0) return;
 		timerMax = level.timer;
 		timerSeconds = level.timer;
 		timerInterval = setInterval(() => {
 			timerSeconds--;
 			if (timerSeconds <= 0) {
-				clearTimer();
+				clearAllTimers();
 				handleTimeout();
 			}
 		}, 1000);
 	}
 
-	function clearTimer() {
-		if (timerInterval) {
-			clearInterval(timerInterval);
-			timerInterval = null;
-		}
-	}
-
 	function handleTimeout() {
 		if (!currentQ || selectedAnswer !== null) return;
+		clearAllTimers();
 		selectedAnswer = -1;
-		feedbackKey++;
-		_feedbackVariant = 'wrong';
+		if (game.soundEnabled) playError();
 		foxyMood = 'encourage';
 		currentFoxyMessage = '¡Se acabó el tiempo!';
 		game.loseHeart();
 		game.updateStreak(false);
 
-		setTimeout(() => {
-			currentIndex++;
-			selectedAnswer = null;
-			_feedbackVariant = 'idle';
-			foxyMood = 'idle';
-
-			if (currentIndex >= totalQuestions) {
+		actionTimeout = setTimeout(() => {
+			if (game.hearts.current <= 0) {
+				showFailed = true;
+				return;
+			}
+			if (currentIndex + 1 >= totalQuestions) {
 				const pct = correctCount / totalQuestions;
 				const stars = pct === 1 ? 3 : pct >= 0.7 ? 2 : pct >= 0.4 ? 1 : 0;
 				game.completeLevel(table, stars, correctCount, totalQuestions);
-				_gameState = 'completed';
 				showComplete = true;
-			} else if (game.hearts.current <= 0) {
-				_gameState = 'failed';
-				showFailed = true;
-			} else {
-				startTimer();
+				return;
 			}
+			currentIndex++;
+			selectedAnswer = null;
+			revealedWrong = [];
+			foxyMood = 'idle';
+			currentFoxyMessage = level?.foxyDialogs.start ?? '';
+			startTimer();
 		}, 1500);
 	}
 
 	function handleAbilityUse() {
-		if (!currentQ) return;
-		startTimer();
+		if (!currentQ || selectedAnswer !== null) return;
+		const wrongOptions = currentQ.options.filter(
+			(o) => o !== currentQ.answer && !revealedWrong.includes(o)
+		);
+		if (wrongOptions.length > 0) {
+			const picked = pickRandom(wrongOptions);
+			revealedWrong = [...revealedWrong, picked];
+		}
+		if (timerSeconds > 0) {
+			timerSeconds = Math.min(timerMax, timerSeconds + 5);
+		}
 	}
 
 	function handleAnswer(value: number) {
 		if (!currentQ || selectedAnswer !== null) return;
+		clearAllTimers();
 		selectedAnswer = value;
-		feedbackKey++;
-		clearTimer();
 
 		const isCorrect = value === currentQ.answer;
 
 		if (isCorrect) {
 			if (game.soundEnabled) playSuccess();
-			_feedbackVariant = 'correct';
 			foxyMood = 'celebrate';
 			currentFoxyMessage = pickRandom(level?.foxyDialogs.correct ?? ['¡Correcto!']);
 			correctCount++;
@@ -216,7 +346,6 @@
 			game.updateFastestCorrect(Date.now());
 		} else {
 			if (game.soundEnabled) playError();
-			_feedbackVariant = 'wrong';
 			foxyMood = 'encourage';
 			currentFoxyMessage = pickRandom(level?.foxyDialogs.wrong ?? ['¡Inténtalo de nuevo!']);
 			game.loseHeart();
@@ -224,45 +353,49 @@
 		}
 
 		const delay = isCorrect ? 1000 : 1500;
-		setTimeout(() => {
-			currentIndex++;
-			selectedAnswer = null;
-			_feedbackVariant = 'idle';
-			foxyMood = 'idle';
-			currentFoxyMessage = level?.foxyDialogs.start ?? '';
-
-			if (currentIndex >= totalQuestions) {
+		actionTimeout = setTimeout(() => {
+			if (!isCorrect && game.hearts.current <= 0) {
+				showFailed = true;
+				return;
+			}
+			if (currentIndex + 1 >= totalQuestions) {
 				const pct = correctCount / totalQuestions;
 				const stars = pct === 1 ? 3 : pct >= 0.7 ? 2 : pct >= 0.4 ? 1 : 0;
 				game.completeLevel(table, stars, correctCount, totalQuestions);
-				_gameState = 'completed';
 				showComplete = true;
-			} else if (game.hearts.current <= 0) {
-				_gameState = 'failed';
-				showFailed = true;
-			} else {
-				startTimer();
+				return;
 			}
+			currentIndex++;
+			selectedAnswer = null;
+			revealedWrong = [];
+			foxyMood = 'idle';
+			currentFoxyMessage = level?.foxyDialogs.start ?? '';
+			startTimer();
 		}, delay);
 	}
 
-	function handleRetry() {
+	function initLevel(t: number) {
+		clearAllTimers();
 		game.resetHearts();
 		game.resetActiveUsage();
 		questions = generateQuestions();
 		currentIndex = 0;
 		correctCount = 0;
 		selectedAnswer = null;
-		_feedbackVariant = 'idle';
+		revealedWrong = [];
 		foxyMood = 'idle';
 		showComplete = false;
 		showFailed = false;
-		_gameState = 'playing';
-		currentFoxyMessage = level?.foxyDialogs.start ?? '';
+		currentFoxyMessage = levelInfo[t]?.foxyDialogs.start ?? '';
 		startTimer();
 	}
 
+	function handleRetry() {
+		initLevel(table);
+	}
+
 	function handleBack() {
+		clearAllTimers();
 		if (game.soundEnabled) playClick();
 		goto('/map');
 	}
@@ -275,21 +408,12 @@
 	$effect(() => {
 		const t = table;
 		if (t >= 1 && t <= 25 && levelInfo[t]) {
-			questions = generateQuestions();
-			currentFoxyMessage = levelInfo[t].foxyDialogs.start;
-			startTimer();
+			untrack(() => {
+				initLevel(t);
+			});
 		}
 		return () => {
-			clearTimer();
-			questions = [];
-			currentIndex = 0;
-			correctCount = 0;
-			selectedAnswer = null;
-			_feedbackVariant = 'idle';
-			foxyMood = 'idle';
-			showComplete = false;
-			showFailed = false;
-			_gameState = 'playing';
+			clearAllTimers();
 		};
 	});
 </script>
@@ -317,15 +441,18 @@
 	>
 		<div class="absolute inset-0 bg-slate-950/85"></div>
 
+		<!-- Header centrado con grid -->
 		<header
-			class="relative z-20 flex w-full items-center justify-between px-6 py-4 max-md:px-4 max-md:py-3"
+			class="relative z-20 grid w-full grid-cols-[1fr_auto_1fr] items-center px-6 py-4 max-md:px-4 max-md:py-3"
 		>
-			<button
-				class="cursor-pointer rounded-xl border border-gray-600 bg-[#252540] px-4 py-2 text-xs text-gray-300 transition-all hover:border-amber-400/50 hover:text-white max-md:px-3 max-md:text-[0.65rem]"
-				onclick={handleBack}
-			>
-				← Mapa
-			</button>
+			<div class="flex justify-start">
+				<button
+					class="cursor-pointer rounded-xl border border-gray-600 bg-[#252540] px-4 py-2 text-xs text-gray-300 transition-all hover:border-amber-400/50 hover:text-white max-md:px-3 max-md:text-[0.65rem]"
+					onclick={handleBack}
+				>
+					← Mapa
+				</button>
+			</div>
 
 			<div class="text-center">
 				<h1 class="font-arcade text-sm tracking-wider text-[#FBBF24] max-md:text-xs">
@@ -336,20 +463,23 @@
 				</p>
 			</div>
 
-			<div class="flex items-center gap-4 max-md:gap-2">
+			<div class="flex items-center justify-end gap-4 max-md:gap-2">
 				<HeartBar />
 				<EnergyBar />
 			</div>
 		</header>
 
+		<!-- Contenido principal centrado -->
 		<div
-			class="relative z-10 flex w-full max-w-5xl flex-1 items-center justify-center gap-8 px-6 py-6 max-md:flex-col max-md:gap-4 max-md:px-4 max-md:py-4"
+			class="relative z-10 mx-auto flex w-full max-w-5xl flex-1 items-center justify-center gap-8 px-6 py-6 max-md:flex-col max-md:gap-4 max-md:px-4 max-md:py-4"
 		>
+			<!-- Foxy Monitor a la izquierda -->
 			<div class="w-48 flex-shrink-0 max-md:w-full">
 				<FoxyMonitor message={currentFoxyMessage} mood={foxyMood} />
 			</div>
 
-			<div class="flex w-full max-w-lg flex-col items-center gap-6">
+			<!-- Panel central y controles -->
+			<div class="flex w-full max-w-lg flex-1 flex-col items-center gap-6">
 				{#if !showComplete && !showFailed && currentQ}
 					<EnginePanel
 						{table}
@@ -358,20 +488,27 @@
 						{energyPercent}
 						a={currentQ.a}
 						b={currentQ.b}
+						questionType={currentQ.questionType}
+						displayPrompt={currentQ.displayPrompt}
+						displayResult={currentQ.displayResult}
+						geometryRows={currentQ.geometryRows}
+						geometryCols={currentQ.geometryCols}
 					/>
 
 					{#if level.timer > 0}
 						<TimerBar seconds={timerSeconds} maxSeconds={timerMax} />
 					{/if}
 
-					<div class="flex items-center justify-center gap-6 max-md:gap-4">
-						{#each currentQ.options as option, _i (option + '-' + feedbackKey)}
-							{@const OptionComp = getOptionComponent(table)}
+					<div class="flex flex-wrap items-center justify-center gap-6 max-md:gap-4">
+						{#each currentQ.options as option, _i (currentIndex + '-' + option)}
+							{@const OptionComp = getOptionComponent(table, currentQ.questionType)}
 							<OptionComp
 								value={option}
 								correct={option === currentQ.answer}
 								selected={selectedAnswer === option}
 								disabled={selectedAnswer !== null}
+								showResult={selectedAnswer !== null}
+								revealedWrong={revealedWrong.includes(option)}
 								onclick={() => handleAnswer(option)}
 							/>
 						{/each}
@@ -398,6 +535,9 @@
 					</div>
 				{/if}
 			</div>
+
+			<!-- Espaciador simétrico en escritorio para centrar perfectamente el panel del juego -->
+			<div class="hidden w-48 flex-shrink-0 lg:block" aria-hidden="true"></div>
 		</div>
 	</div>
 

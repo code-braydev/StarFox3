@@ -7,9 +7,11 @@
 		maxSeconds: number;
 	} = $props();
 
-	let percentage = $derived(maxSeconds > 0 ? (seconds / maxSeconds) * 100 : 100);
-	let isCritical = $derived(seconds <= 5 && seconds > 0);
-	let isUrgent = $derived(seconds <= 3 && seconds > 0);
+	let safeSeconds = $derived(Math.max(0, seconds));
+	let percentage = $derived(maxSeconds > 0 ? (safeSeconds / maxSeconds) * 100 : 100);
+	let isCritical = $derived(safeSeconds <= 5 && safeSeconds > 0);
+	let isUrgent = $derived(safeSeconds <= 3 && safeSeconds > 0);
+	let isReset = $derived(seconds >= maxSeconds);
 
 	let barColor = $derived(isUrgent ? '#EF4444' : isCritical ? '#FBBF24' : '#22C55E');
 
@@ -19,7 +21,7 @@
 <div class="flex w-full items-center gap-3">
 	<div class="relative h-3 w-full overflow-hidden rounded-full bg-[#1E1E2F] max-md:h-2">
 		<div
-			class="h-full rounded-full transition-all duration-1000 ease-linear {pulseClass}"
+			class="h-full rounded-full {isReset ? '' : 'transition-all duration-1000 ease-linear'} {pulseClass}"
 			style:width="{percentage}%"
 			style:background-color={barColor}
 		></div>
@@ -31,6 +33,6 @@
 				? 'text-amber-400'
 				: 'text-gray-300'}"
 	>
-		{seconds}s
+		{safeSeconds}s
 	</span>
 </div>

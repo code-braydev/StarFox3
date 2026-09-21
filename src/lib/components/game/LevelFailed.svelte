@@ -44,22 +44,15 @@
 		<span class="font-bold text-amber-400">{total}</span>
 	</p>
 
-	<!-- Corazones restantes -->
-	{#if heartsRemaining <= 0}
-		<p class="text-center text-sm font-bold text-red-400">
-			Sin corazones. Vuelve más tarde o usa una poción.
-		</p>
-	{:else}
-		<p class="text-center text-xs text-gray-500">
-			Quedan <span class="font-bold text-red-400">{heartsRemaining}</span> ❤️ esta sesión
-		</p>
-	{/if}
+	<!-- Mensaje de aliento -->
+	<p class="text-center text-xs text-gray-400">
+		¡No te rindas! Puedes reintentar la misión para reparar la nave.
+	</p>
 
 	<!-- Botones -->
 	<div class="flex gap-4">
 		<button
-			class="min-h-[48px] cursor-pointer rounded-2xl border-none bg-gradient-to-r from-amber-400 to-amber-500 px-8 py-3 text-sm font-bold text-[#1E1E2F] transition-all duration-300 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
-			disabled={heartsRemaining <= 0}
+			class="min-h-[48px] cursor-pointer rounded-2xl border-none bg-gradient-to-r from-amber-400 to-amber-500 px-8 py-3 text-sm font-bold text-[#1E1E2F] shadow-[0_0_15px_rgba(251,191,36,0.3)] transition-all duration-300 hover:scale-105 active:scale-95"
 			onclick={handleRetry}
 		>
 			🔄 Reintentar

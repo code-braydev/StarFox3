@@ -1,7 +1,15 @@
 <script lang="ts">
 	import './layout.css';
+	import { page } from '$app/state';
+	import { afterNavigate } from '$app/navigation';
 
 	let { children } = $props();
+
+	afterNavigate(() => {
+		if (typeof window !== 'undefined') {
+			window.scrollTo(0, 0);
+		}
+	});
 </script>
 
 <svelte:head>
@@ -12,4 +20,6 @@
 	<link rel="manifest" href="/site.webmanifest" />
 </svelte:head>
 
-{@render children()}
+{#key page.url.pathname}
+	{@render children()}
+{/key}

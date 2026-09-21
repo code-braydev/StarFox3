@@ -64,9 +64,17 @@
 		}
 	}
 
-	function handleSkip() {
+	function skipAll() {
+		clearTyping();
+		game.markIntroSeen();
+		onClose();
+	}
+
+	function handleOverlayClick() {
 		if (isTyping) {
 			skipToEnd();
+		} else {
+			advanceDialogue();
 		}
 	}
 
@@ -91,12 +99,24 @@
 {#if open && !isFinished}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
-		class="fixed inset-0 z-[2000] flex cursor-pointer flex-col justify-end bg-black/90"
-		onclick={handleSkip}
+		class="fixed inset-0 z-[2000] flex cursor-pointer flex-col justify-end bg-black/90 p-4"
+		onclick={handleOverlayClick}
 		onkeydown={(e) => {
-			if (e.key === 'Enter' || e.key === ' ') handleSkip();
+			if (e.key === 'Enter' || e.key === ' ') handleOverlayClick();
+			if (e.key === 'Escape') skipAll();
 		}}
 	>
+		<!-- Botón Saltar historia (fijo arriba a la derecha) -->
+		<button
+			class="absolute top-6 right-6 z-30 cursor-pointer rounded-xl border border-gray-600/80 bg-[#1a1a3e]/80 px-4 py-2 text-xs font-bold text-gray-300 backdrop-blur-sm transition-all hover:border-amber-400 hover:text-white max-md:top-4 max-md:right-4 max-md:text-[0.7rem]"
+			onclick={(e) => {
+				e.stopPropagation();
+				skipAll();
+			}}
+		>
+			✕ Saltar intro
+		</button>
+
 		<!-- Capa de estrellas de fondo -->
 		<div class="pointer-events-none absolute inset-0 opacity-30">
 			<div
