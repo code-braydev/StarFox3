@@ -68,7 +68,7 @@
 		>
 			<!-- Avatar -->
 			<div class="mb-4 animate-[float_3s_ease-in-out_infinite]">
-				<img src="/img/avartar-foxy.webp" alt="Foxy" class="mx-auto h-20 w-20 object-contain" />
+				<img src="/img/avatar-foxy.webp" alt="Foxy" class="mx-auto h-20 w-20 object-contain" />
 			</div>
 
 			<!-- Titulo -->

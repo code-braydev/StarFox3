@@ -1,16 +1,6 @@
 <script lang="ts">
 	let { completedUpTo }: { completedUpTo: number } = $props();
 
-	const pathSegments = [
-		{ from: 2, to: 3, type: 'horizontal' },
-		{ from: 3, to: 4, type: 'horizontal' },
-		{ from: 4, to: 5, type: 'vertical-down' },
-		{ from: 5, to: 6, type: 'horizontal-reverse' },
-		{ from: 6, to: 7, type: 'horizontal-reverse' },
-		{ from: 7, to: 8, type: 'vertical-down' },
-		{ from: 8, to: 9, type: 'horizontal' }
-	];
-
 	function isSegmentCompleted(from: number, to: number): boolean {
 		return completedUpTo >= from && completedUpTo >= to;
 	}
@@ -48,8 +38,16 @@
 
 		<!-- Fila 1: 2 → 3 → 4 -->
 		<!-- 2 → 3 -->
-		<line x1="160" y1="120" x2="400" y2="120"
-			stroke={isSegmentCompleted(2, 3) ? 'url(#path-completed)' : isSegmentActive(2) ? 'url(#path-active)' : '#374151'}
+		<line
+			x1="160"
+			y1="120"
+			x2="400"
+			y2="120"
+			stroke={isSegmentCompleted(2, 3)
+				? 'url(#path-completed)'
+				: isSegmentActive(2)
+					? 'url(#path-active)'
+					: '#374151'}
 			stroke-width="3"
 			stroke-dasharray={isSegmentCompleted(2, 3) ? 'none' : '8 4'}
 			filter={isSegmentCompleted(2, 3) ? 'url(#glow)' : undefined}
@@ -57,8 +55,16 @@
 		/>
 
 		<!-- 3 → 4 -->
-		<line x1="400" y1="120" x2="640" y2="120"
-			stroke={isSegmentCompleted(3, 4) ? 'url(#path-completed)' : isSegmentActive(3) ? 'url(#path-active)' : '#374151'}
+		<line
+			x1="400"
+			y1="120"
+			x2="640"
+			y2="120"
+			stroke={isSegmentCompleted(3, 4)
+				? 'url(#path-completed)'
+				: isSegmentActive(3)
+					? 'url(#path-active)'
+					: '#374151'}
 			stroke-width="3"
 			stroke-dasharray={isSegmentCompleted(3, 4) ? 'none' : '8 4'}
 			filter={isSegmentCompleted(3, 4) ? 'url(#glow)' : undefined}
@@ -66,8 +72,13 @@
 		/>
 
 		<!-- 4 ↓ 5 (curva descendente) -->
-		<path d="M 640 120 Q 640 200 640 220 Q 640 280 640 300"
-			stroke={isSegmentCompleted(4, 5) ? 'url(#path-completed)' : isSegmentActive(4) ? 'url(#path-active)' : '#374151'}
+		<path
+			d="M 640 120 Q 640 200 640 220 Q 640 280 640 300"
+			stroke={isSegmentCompleted(4, 5)
+				? 'url(#path-completed)'
+				: isSegmentActive(4)
+					? 'url(#path-active)'
+					: '#374151'}
 			stroke-width="3"
 			stroke-dasharray={isSegmentCompleted(4, 5) ? 'none' : '8 4'}
 			fill="none"
@@ -77,8 +88,16 @@
 
 		<!-- Fila 2: 5 ← 6 ← 7 -->
 		<!-- 5 ← 6 -->
-		<line x1="640" y1="350" x2="400" y2="350"
-			stroke={isSegmentCompleted(5, 6) ? 'url(#path-completed)' : isSegmentActive(5) ? 'url(#path-active)' : '#374151'}
+		<line
+			x1="640"
+			y1="350"
+			x2="400"
+			y2="350"
+			stroke={isSegmentCompleted(5, 6)
+				? 'url(#path-completed)'
+				: isSegmentActive(5)
+					? 'url(#path-active)'
+					: '#374151'}
 			stroke-width="3"
 			stroke-dasharray={isSegmentCompleted(5, 6) ? 'none' : '8 4'}
 			filter={isSegmentCompleted(5, 6) ? 'url(#glow)' : undefined}
@@ -86,8 +105,16 @@
 		/>
 
 		<!-- 6 ← 7 -->
-		<line x1="400" y1="350" x2="160" y2="350"
-			stroke={isSegmentCompleted(6, 7) ? 'url(#path-completed)' : isSegmentActive(6) ? 'url(#path-active)' : '#374151'}
+		<line
+			x1="400"
+			y1="350"
+			x2="160"
+			y2="350"
+			stroke={isSegmentCompleted(6, 7)
+				? 'url(#path-completed)'
+				: isSegmentActive(6)
+					? 'url(#path-active)'
+					: '#374151'}
 			stroke-width="3"
 			stroke-dasharray={isSegmentCompleted(6, 7) ? 'none' : '8 4'}
 			filter={isSegmentCompleted(6, 7) ? 'url(#glow)' : undefined}
@@ -95,8 +122,13 @@
 		/>
 
 		<!-- 7 ↓ 8 (curva descendente) -->
-		<path d="M 160 350 Q 160 430 160 460 Q 160 500 160 530"
-			stroke={isSegmentCompleted(7, 8) ? 'url(#path-completed)' : isSegmentActive(7) ? 'url(#path-active)' : '#374151'}
+		<path
+			d="M 160 350 Q 160 430 160 460 Q 160 500 160 530"
+			stroke={isSegmentCompleted(7, 8)
+				? 'url(#path-completed)'
+				: isSegmentActive(7)
+					? 'url(#path-active)'
+					: '#374151'}
 			stroke-width="3"
 			stroke-dasharray={isSegmentCompleted(7, 8) ? 'none' : '8 4'}
 			fill="none"
@@ -105,8 +137,16 @@
 		/>
 
 		<!-- Fila 3: 8 → 9 -->
-		<line x1="160" y1="560" x2="400" y2="560"
-			stroke={isSegmentCompleted(8, 9) ? 'url(#path-completed)' : isSegmentActive(8) ? 'url(#path-active)' : '#374151'}
+		<line
+			x1="160"
+			y1="560"
+			x2="400"
+			y2="560"
+			stroke={isSegmentCompleted(8, 9)
+				? 'url(#path-completed)'
+				: isSegmentActive(8)
+					? 'url(#path-active)'
+					: '#374151'}
 			stroke-width="3"
 			stroke-dasharray={isSegmentCompleted(8, 9) ? 'none' : '8 4'}
 			filter={isSegmentCompleted(8, 9) ? 'url(#glow)' : undefined}
