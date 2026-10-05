@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { playClick, playSuccess, playError } from '$lib/audio/audio';
+	import { playClick } from '$lib/audio/audio';
 	import { game } from '$lib/stores/game.svelte';
 
 	let {
@@ -33,10 +33,12 @@
 
 <button
 	class="group relative flex h-24 w-24 cursor-pointer items-center justify-center rounded-xl border-[3px] transition-all duration-300 max-md:h-20 max-md:w-20
-		{isDimmed || (disabled && !showResult) ? 'cursor-not-allowed opacity-40' : 'hover:scale-105 active:scale-95'}
+		{isDimmed || (disabled && !showResult)
+		? 'cursor-not-allowed opacity-40'
+		: 'hover:scale-105 active:scale-95'}
 		{isWrongPicked ? 'animate-[shake_0.3s_ease-in-out]' : ''}
 		{isCorrectRevealed
-		? 'border-emerald-400 bg-gradient-to-br from-emerald-600 to-amber-700 shadow-[0_0_30px_rgba(34,197,94,0.6)] scale-105'
+		? 'scale-105 border-emerald-400 bg-gradient-to-br from-emerald-600 to-amber-700 shadow-[0_0_30px_rgba(34,197,94,0.6)]'
 		: isWrongPicked
 			? 'border-red-400 bg-gradient-to-br from-red-600/50 to-red-900/50'
 			: 'border-amber-700/50 bg-gradient-to-br from-[#4a3520] to-[#2a1a10] hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)]'}"
@@ -53,7 +55,11 @@
 	<!-- Número -->
 	<span
 		class="relative z-10 font-arcade text-xl font-bold transition-all duration-300 max-md:text-lg
-			{isCorrectRevealed ? 'text-emerald-200 scale-110 font-extrabold' : isWrongPicked ? 'text-red-300' : 'text-amber-100'}"
+			{isCorrectRevealed
+			? 'scale-110 font-extrabold text-emerald-200'
+			: isWrongPicked
+				? 'text-red-300'
+				: 'text-amber-100'}"
 	>
 		{value}
 	</span>
@@ -71,18 +77,3 @@
 		></div>
 	{/if}
 </button>
-
-<style>
-	@keyframes shake {
-		0%,
-		100% {
-			transform: translateX(0);
-		}
-		25% {
-			transform: translateX(-4px) rotate(-1deg);
-		}
-		75% {
-			transform: translateX(4px) rotate(1deg);
-		}
-	}
-</style>

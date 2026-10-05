@@ -21,7 +21,9 @@
 <div class="flex w-full items-center gap-3">
 	<div class="relative h-3 w-full overflow-hidden rounded-full bg-[#1E1E2F] max-md:h-2">
 		<div
-			class="h-full rounded-full {isReset ? '' : 'transition-all duration-1000 ease-linear'} {pulseClass}"
+			class="h-full rounded-full {isReset
+				? ''
+				: 'transition-all duration-1000 ease-linear'} {pulseClass}"
 			style:width="{percentage}%"
 			style:background-color={barColor}
 		></div>

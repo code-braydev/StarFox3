@@ -176,10 +176,14 @@ function loadFromStorage(): GameState {
 		const stored = localStorage.getItem(STORAGE_KEY);
 		if (stored) {
 			const parsed = JSON.parse(stored);
-			if (parsed.progress?.tablesCompleted) {
-				return migrateOldState(parsed);
+			const state = parsed.progress?.tablesCompleted
+				? migrateOldState(parsed)
+				: { ...defaultState, ...parsed };
+			if (state.progress) {
+				const stars = (state.progress.stars as Record<number, number>) ?? {};
+				state.progress.totalStars = Object.values(stars).reduce((sum, s) => sum + (Number(s) || 0), 0);
 			}
-			return { ...defaultState, ...parsed };
+			return state;
 		}
 	} catch {
 		// ignore
@@ -211,12 +215,63 @@ function recalcMaxEnergy(state: GameState) {
 	state.energy.max = hasAstro ? 300 : 250;
 }
 
+function checkAllAchievements(currentState: GameState, queue: string[]) {
+	const checks: [string, boolean][] = [
+		['progress-wood', currentState.progress.levelsCompleted.includes(1)],
+		['progress-bronze', currentState.progress.levelsCompleted.includes(9)],
+		['progress-silver', currentState.progress.levelsCompleted.includes(24)],
+		['progress-gold', currentState.progress.levelsCompleted.includes(25)],
+		['skill-lightning', currentState.stats.fastestCorrect > 0 && currentState.stats.fastestCorrect <= 2000],
+		['skill-perfection', Object.values(currentState.progress.stars).some((s) => s === 3)],
+		['skill-fire', currentState.stats.bestStreak >= 15],
+		['collect-5', currentState.characters.unlocked.length >= 5],
+		['collect-15', currentState.characters.unlocked.length >= 15],
+		['collect-first-skin', currentState.shop.purchased.length >= 1],
+		['effort-practice', currentState.stats.practiceModePlays >= 10],
+		['effort-no-energy', currentState.stats.ranOutOfEnergy === true]
+	];
+
+	for (const [id, condition] of checks) {
+		if (condition && !currentState.medals.earned.includes(id)) {
+			currentState.medals.earned.push(id);
+			if (!queue.includes(id)) {
+				queue.push(id);
+			}
+		}
+	}
+}
+
+function syncExistingAchievements(currentState: GameState) {
+	const checks: [string, boolean][] = [
+		['progress-wood', currentState.progress.levelsCompleted.includes(1)],
+		['progress-bronze', currentState.progress.levelsCompleted.includes(9)],
+		['progress-silver', currentState.progress.levelsCompleted.includes(24)],
+		['progress-gold', currentState.progress.levelsCompleted.includes(25)],
+		['skill-lightning', currentState.stats.fastestCorrect > 0 && currentState.stats.fastestCorrect <= 2000],
+		['skill-perfection', Object.values(currentState.progress.stars).some((s) => s === 3)],
+		['skill-fire', currentState.stats.bestStreak >= 15],
+		['collect-5', currentState.characters.unlocked.length >= 5],
+		['collect-15', currentState.characters.unlocked.length >= 15],
+		['collect-first-skin', currentState.shop.purchased.length >= 1],
+		['effort-practice', currentState.stats.practiceModePlays >= 10],
+		['effort-no-energy', currentState.stats.ranOutOfEnergy === true]
+	];
+
+	for (const [id, condition] of checks) {
+		if (condition && !currentState.medals.earned.includes(id)) {
+			currentState.medals.earned.push(id);
+		}
+	}
+}
+
 function createGameStore() {
 	const state = $state<GameState>(loadFromStorage());
+	const pendingMedals = $state<string[]>([]);
 
 	if (typeof window !== 'undefined') {
 		rechargeEnergy(state);
 		recalcMaxEnergy(state);
+		syncExistingAchievements(state);
 
 		$effect.root(() => {
 			$effect(() => {
@@ -251,6 +306,20 @@ function createGameStore() {
 		},
 		get medals() {
 			return state.medals;
+		},
+		get pendingMedals() {
+			return pendingMedals;
+		},
+		get currentPendingMedal() {
+			return pendingMedals.length > 0 ? pendingMedals[0] : null;
+		},
+		dismissPendingMedal() {
+			if (pendingMedals.length > 0) {
+				pendingMedals.shift();
+			}
+		},
+		checkAchievements() {
+			checkAllAchievements(state, pendingMedals);
 		},
 		get stats() {
 			return state.stats;
@@ -290,7 +359,7 @@ function createGameStore() {
 				state.progress.stars[level] = starsEarned;
 			}
 
-			state.progress.totalStars = Object.values(state.progress.stars).reduce((s, v) => s + v, 0);
+			state.progress.totalStars = Object.values(state.progress.stars).reduce((s, v) => s + (Number(v) || 0), 0);
 
 			let gemsEarned = correct;
 			const char = characters.find((c) => c.id === state.characters.selected);
@@ -302,6 +371,7 @@ function createGameStore() {
 			state.progress.gems += gemsEarned;
 			state.progress.totalCorrect += correct;
 			state.progress.totalAttempts += total;
+			checkAllAchievements(state, pendingMedals);
 		},
 
 		addGems(amount: number) {
@@ -316,8 +386,14 @@ function createGameStore() {
 
 		useEnergy(cost: number): boolean {
 			rechargeEnergy(state);
-			if (state.energy.current < cost) return false;
+			if (state.energy.current < cost) {
+				this.setRanOutOfEnergy();
+				return false;
+			}
 			state.energy.current -= cost;
+			if (state.energy.current === 0) {
+				this.setRanOutOfEnergy();
+			}
 			return true;
 		},
 
@@ -350,11 +426,43 @@ function createGameStore() {
 			if (!state.characters.unlocked.includes(id)) {
 				state.characters.unlocked.push(id);
 				recalcMaxEnergy(state);
+				checkAllAchievements(state, pendingMedals);
 			}
 		},
 
 		isCharacterUnlocked(id: string): boolean {
 			return state.characters.unlocked.includes(id);
+		},
+
+		canUnlockCharacter(id: string): boolean {
+			const char = characters.find((c) => c.id === id);
+			if (!char) return false;
+			if (state.characters.unlocked.includes(id)) return false;
+			switch (char.unlockType) {
+				case 'free':
+					return true;
+				case 'stars':
+					return state.progress.totalStars >= char.unlockValue;
+				case 'gems':
+					return state.progress.gems >= char.unlockValue;
+				case 'level':
+					return state.progress.levelsCompleted.includes(char.unlockValue);
+				default:
+					return false;
+			}
+		},
+
+		unlockCharacterWithCheck(id: string): boolean {
+			const char = characters.find((c) => c.id === id);
+			if (!char) return false;
+			if (state.characters.unlocked.includes(id)) return false;
+			if (char.unlockType === 'gems') {
+				if (state.progress.gems < char.unlockValue) return false;
+				state.progress.gems -= char.unlockValue;
+			}
+			state.characters.unlocked.push(id);
+			recalcMaxEnergy(state);
+			return true;
 		},
 
 		canUseActive(characterId: string): boolean {
@@ -384,6 +492,7 @@ function createGameStore() {
 			if (state.progress.gems < price) return false;
 			state.progress.gems -= price;
 			state.shop.purchased.push(itemId);
+			checkAllAchievements(state, pendingMedals);
 			return true;
 		},
 
@@ -394,6 +503,9 @@ function createGameStore() {
 		earnMedal(medalId: string): boolean {
 			if (state.medals.earned.includes(medalId)) return false;
 			state.medals.earned.push(medalId);
+			if (!pendingMedals.includes(medalId)) {
+				pendingMedals.push(medalId);
+			}
 			return true;
 		},
 
@@ -415,11 +527,13 @@ function createGameStore() {
 
 		incrementPracticePlays() {
 			state.stats.practiceModePlays++;
+			checkAllAchievements(state, pendingMedals);
 		},
 
 		setRanOutOfEnergy() {
 			if (!state.stats.ranOutOfEnergy) {
 				state.stats.ranOutOfEnergy = true;
+				checkAllAchievements(state, pendingMedals);
 			}
 		},
 
@@ -432,11 +546,13 @@ function createGameStore() {
 			} else {
 				state.stats.currentStreak = 0;
 			}
+			checkAllAchievements(state, pendingMedals);
 		},
 
 		updateFastestCorrect(timeMs: number) {
 			if (timeMs < state.stats.fastestCorrect) {
 				state.stats.fastestCorrect = timeMs;
+				checkAllAchievements(state, pendingMedals);
 			}
 		},
 

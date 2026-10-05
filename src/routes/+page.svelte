@@ -28,7 +28,7 @@
 </script>
 
 <div
-	class="hangar-page relative flex min-h-dvh w-full flex-col items-center justify-center gap-8 overflow-hidden bg-[url('/img/bg-hangar.webp')] bg-cover bg-center bg-no-repeat px-6 after:pointer-events-none after:fixed after:inset-0 after:z-10 after:bg-black/55"
+	class="hangar-page relative flex min-h-dvh w-full flex-col items-center justify-center gap-8 overflow-hidden bg-[url('/img/background/bg-hangar.webp')] bg-cover bg-center bg-no-repeat px-6 after:pointer-events-none after:fixed after:inset-0 after:z-10 after:bg-black/55"
 >
 	<!-- Capa 1: Estrellas base (blancas) -->
 	<div

@@ -75,7 +75,7 @@
 		if (isCorrect) {
 			if (game.soundEnabled) playSuccess();
 			correctCount++;
-			game.addEnergy(3);
+			game.addEnergy(1);
 		} else {
 			if (game.soundEnabled) playError();
 		}
@@ -84,7 +84,11 @@
 			currentIndex++;
 			selectedAnswer = null;
 			if (currentIndex >= TOTAL_QUESTIONS) {
-				game.updateStreak(true);
+				const earnedGems = Math.floor(correctCount / 3);
+				const bonusEnergy = Math.min(40, correctCount * 2);
+				game.addGems(earnedGems);
+				game.addEnergy(bonusEnergy);
+				game.incrementPracticePlays();
 				showResult = true;
 			}
 		}, 500);
@@ -110,7 +114,9 @@
 	<title>Velocidad Mental - Star Fox 3</title>
 </svelte:head>
 
-<div class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-[#0f0f2a]">
+<!-- RECURSO: static/img/minigames/bg-velocidad.webp (Colocar fondo del túnel hiperespacial) -->
+<div class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-[url('/img/bg-map.webp')] bg-cover bg-center bg-no-repeat">
+	<div class="absolute inset-0 bg-slate-950/90"></div>
 	<header
 		class="relative z-20 flex w-full items-center justify-between px-6 py-4 max-md:px-4 max-md:py-3"
 	>
