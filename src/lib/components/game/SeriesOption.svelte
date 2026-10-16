@@ -46,16 +46,16 @@
 <button
 	class="group relative flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-2xl border-[3px] font-arcade text-2xl font-bold transition-all duration-300 max-md:h-20 max-md:w-20 max-md:text-xl
 		{effectiveVariant === 'idle'
-		? 'border-purple-600 bg-gradient-to-br from-[#2a2a4a] to-[#1a1a3e] text-purple-300 shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95'
+		? 'border-purple-600 bg-gradient-to-br from-[#2a2a4a] to-[#1a1a3e] text-purple-300 shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:scale-105 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] active:scale-95'
 		: ''}
 		{effectiveVariant === 'correct'
-		? 'border-emerald-400 bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-[0_0_25px_rgba(34,197,94,0.6)] scale-105'
+		? 'scale-105 border-emerald-400 bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-[0_0_25px_rgba(34,197,94,0.6)]'
 		: ''}
 		{effectiveVariant === 'wrong'
-		? 'border-red-400 bg-gradient-to-br from-red-600/50 to-red-800/50 text-red-200 animate-[shake_0.4s_ease-in-out]'
+		? 'animate-[shake_0.4s_ease-in-out] border-red-400 bg-gradient-to-br from-red-600/50 to-red-800/50 text-red-200'
 		: ''}
 		{effectiveVariant === 'dimmed'
-		? 'border-gray-700 bg-[#1a1a2e] text-gray-500 opacity-40 cursor-not-allowed'
+		? 'cursor-not-allowed border-gray-700 bg-[#1a1a2e] text-gray-500 opacity-40'
 		: ''}
 		{disabled && effectiveVariant === 'idle' ? 'cursor-not-allowed opacity-60' : ''}
 		{isAnimating && effectiveVariant === 'correct'

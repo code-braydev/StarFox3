@@ -95,7 +95,7 @@
 
 	<!-- Operación actual -->
 	<div
-		class="mb-4 flex flex-col items-center justify-center gap-2 rounded-2xl border border-amber-400/20 bg-[#12122a] py-5 px-4 text-center max-md:mb-3 max-md:py-4"
+		class="mb-4 flex flex-col items-center justify-center gap-2 rounded-2xl border border-amber-400/20 bg-[#12122a] px-4 py-5 text-center max-md:mb-3 max-md:py-4"
 	>
 		<span class="text-[0.7rem] font-bold tracking-wider text-amber-400/80 max-md:text-[0.6rem]">
 			{promptLabel}
@@ -103,7 +103,7 @@
 
 		{#if questionType === 'geometry' && geometryRows && geometryCols}
 			<!-- Grid de bloques visual -->
-			<div class="my-2 flex flex-col gap-1 items-center justify-center">
+			<div class="my-2 flex flex-col items-center justify-center gap-1">
 				{#each Array(geometryRows) as _, r (r)}
 					<div class="flex gap-1">
 						{#each Array(geometryCols) as _, c (c)}

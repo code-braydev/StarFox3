@@ -132,7 +132,14 @@
 
 	function generateSmallDistractors(correct: number): number[] {
 		const distractors: number[] = [];
-		const candidates = [correct - 1, correct + 1, correct - 2, correct + 2, correct + 3, correct - 3];
+		const candidates = [
+			correct - 1,
+			correct + 1,
+			correct - 2,
+			correct + 2,
+			correct + 3,
+			correct - 3
+		];
 		for (const c of candidates) {
 			if (c > 0 && c !== correct && !distractors.includes(c)) distractors.push(c);
 			if (distractors.length >= 2) break;

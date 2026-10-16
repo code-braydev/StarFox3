@@ -91,11 +91,18 @@
 		setTimeout(() => {
 			if (hearts <= 0) {
 				gameOver = true;
+				const earnedGems = Math.floor(correctCount / 4);
+				game.addGems(earnedGems);
+				game.incrementPracticePlays();
 				showResult = true;
 			} else {
 				currentIndex++;
 				selectedAnswer = null;
 				if (currentIndex >= TOTAL_QUESTIONS) {
+					const earnedGems = Math.floor(correctCount / 3);
+					game.addGems(earnedGems);
+					game.addHeart();
+					game.incrementPracticePlays();
 					showResult = true;
 				}
 			}
@@ -125,7 +132,9 @@
 	<title>Precisión Infinita - Star Fox 3</title>
 </svelte:head>
 
-<div class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-[#0f0f2a]">
+<!-- RECURSO: static/img/minigames/bg-precision.webp (Colocar fondo de sala de reactores de energía) -->
+<div class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-[url('/img/bg-map.webp')] bg-cover bg-center bg-no-repeat">
+	<div class="absolute inset-0 bg-slate-950/90"></div>
 	<header
 		class="relative z-20 flex w-full items-center justify-between px-6 py-4 max-md:px-4 max-md:py-3"
 	>

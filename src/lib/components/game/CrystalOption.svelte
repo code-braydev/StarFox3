@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { playClick, playSuccess, playError } from '$lib/audio/audio';
+	import { playClick } from '$lib/audio/audio';
 	import { game } from '$lib/stores/game.svelte';
 
 	let {
@@ -33,7 +33,9 @@
 
 <button
 	class="crystal-option group relative flex h-28 w-28 cursor-pointer items-center justify-center transition-all duration-300 max-md:h-24 max-md:w-24
-		{isDimmed || (disabled && !showResult) ? 'cursor-not-allowed opacity-40' : 'hover:scale-105 active:scale-95'}
+		{isDimmed || (disabled && !showResult)
+		? 'cursor-not-allowed opacity-40'
+		: 'hover:scale-105 active:scale-95'}
 		{isWrongPicked ? 'animate-[shake_0.3s_ease-in-out]' : ''}"
 	onclick={handleClick}
 	disabled={disabled || showResult}
@@ -69,14 +71,18 @@
 		<!-- Borde del cristal -->
 		<div
 			class="absolute inset-0 transition-all duration-300"
-			style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); border: 2px solid {isCorrectRevealed ? '#34d399' : isWrongPicked ? '#f87171' : 'rgba(255,255,255,0.3)'};"
+			style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); border: 2px solid {isCorrectRevealed
+				? '#34d399'
+				: isWrongPicked
+					? '#f87171'
+					: 'rgba(255,255,255,0.3)'};"
 		></div>
 	</div>
 
 	<!-- Número del cristal -->
 	<span
 		class="relative z-10 text-2xl font-bold text-white drop-shadow-lg transition-all duration-300 max-md:text-xl
-			{isCorrectRevealed ? 'scale-110 text-green-300 font-extrabold' : ''}
+			{isCorrectRevealed ? 'scale-110 font-extrabold text-green-300' : ''}
 			{isWrongPicked ? 'text-red-300' : ''}
 			{isDimmed ? 'text-white/40' : ''}"
 	>
@@ -98,18 +104,3 @@
 		></div>
 	{/if}
 </button>
-
-<style>
-	@keyframes shake {
-		0%,
-		100% {
-			transform: translateX(0);
-		}
-		25% {
-			transform: translateX(-4px);
-		}
-		75% {
-			transform: translateX(4px);
-		}
-	}
-</style>

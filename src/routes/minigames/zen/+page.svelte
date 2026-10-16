@@ -72,7 +72,11 @@
 		if (isCorrect) {
 			if (game.soundEnabled) playSuccess();
 			correctCount++;
-			game.addEnergy(1);
+			game.addEnergy(2);
+			if (correctCount % 3 === 0) {
+				game.addGems(1);
+			}
+			game.incrementPracticePlays();
 		}
 
 		setTimeout(() => {
@@ -96,7 +100,9 @@
 	<title>Modo Zen - Star Fox 3</title>
 </svelte:head>
 
-<div class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-[#0f0f2a]">
+<!-- RECURSO: static/img/minigames/bg-zen.webp (Colocar fondo de nebulosa y órbita pacífica) -->
+<div class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-[url('/img/bg-map.webp')] bg-cover bg-center bg-no-repeat">
+	<div class="absolute inset-0 bg-slate-950/90"></div>
 	<header
 		class="relative z-20 flex w-full items-center justify-between px-6 py-4 max-md:px-4 max-md:py-3"
 	>

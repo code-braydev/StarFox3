@@ -2,12 +2,22 @@
 	import './layout.css';
 	import { page } from '$app/state';
 	import { afterNavigate } from '$app/navigation';
+	import { game } from '$lib/stores/game.svelte';
+	import AchievementToast from '$lib/components/medals/AchievementToast.svelte';
 
 	let { children } = $props();
 
 	afterNavigate(() => {
 		if (typeof window !== 'undefined') {
 			window.scrollTo(0, 0);
+		}
+	});
+
+	// Gestión dinámica del tema comprado en la tienda
+	$effect(() => {
+		if (typeof document !== 'undefined') {
+			const theme = game.shop.equipped.theme || 'default';
+			document.documentElement.setAttribute('data-theme', theme);
 		}
 	});
 </script>
@@ -19,6 +29,9 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 	<link rel="manifest" href="/site.webmanifest" />
 </svelte:head>
+
+<!-- Banner global de logros desbloqueados -->
+<AchievementToast />
 
 {#key page.url.pathname}
 	{@render children()}

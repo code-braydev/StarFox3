@@ -25,7 +25,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	1: {
 		name: 'Tutorial - Tabla del 1',
 		description: 'Aprende a pilotear la nave resolviendo las multiplicaciones más básicas.',
-		background: '/img/bg-hangar.webp',
+		background: '/img/background/bg-hangar.webp',
 		phase: 1,
 		energyCost: 0,
 		timer: 30,
@@ -63,7 +63,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	2: {
 		name: 'Estación Orbital Alfa',
 		description: 'Carga las celdas de combustible para despegar.',
-		background: '/img/background/a52782ccb3a30108eb1700950086dcf9.webp',
+		background: '/img/background/bg-earth.webp',
 		phase: 1,
 		energyCost: 10,
 		timer: 30,
@@ -101,7 +101,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	3: {
 		name: 'El Bosque de Cristal',
 		description: 'Navega entre los prismas luminosos que guían tu camino.',
-		background: '/img/background/0dfc78ea7d3f2c1e08b50da43e6b528f.webp',
+		background: '/img/background/bg-nebula.webp',
 		phase: 1,
 		energyCost: 10,
 		timer: 30,
@@ -139,7 +139,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	4: {
 		name: 'El Anillo de Asteroides',
 		description: 'Calibra el escudo de la nave entre los asteroides.',
-		background: '/img/background/98d0f009f41e6e13f29457f2e3322343.webp',
+		background: '/img/background/bg-asteroid.webp',
 		phase: 1,
 		energyCost: 10,
 		timer: 30,
@@ -177,7 +177,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	5: {
 		name: 'Nebulosa Velox',
 		description: 'Descodifica la trayectoria para escapar de la gravedad.',
-		background: '/img/background/72e51093f3d7d9840d1600440346128d.webp',
+		background: '/img/background/bg-gas-storm.webp',
 		phase: 1,
 		energyCost: 10,
 		timer: 30,
@@ -215,7 +215,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	6: {
 		name: 'La Forja Estelar',
 		description: 'Repara el motor con piezas de repuesto cósmicas.',
-		background: '/img/background/6534a0e7a2b34c5da06c9c82c87002c3.webp',
+		background: '/img/background/bg-station.webp',
 		phase: 1,
 		energyCost: 10,
 		timer: 30,
@@ -253,7 +253,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	7: {
 		name: 'Puerto Espacial Sirius',
 		description: 'Negocia tu paso por el puerto interplanetario.',
-		background: '/img/background/fc5d322f06c104b03e4dc12c7412b59d.webp',
+		background: '/img/background/bg-port.webp',
 		phase: 1,
 		energyCost: 10,
 		timer: 30,
@@ -291,7 +291,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	8: {
 		name: 'El Vacío Profundo',
 		description: 'Calcula las reservas de oxígeno para el viaje largo.',
-		background: '/img/background/8c3e0b3d29fb4c10aa6010992521176e.webp',
+		background: '/img/background/bg-void.webp',
 		phase: 1,
 		energyCost: 10,
 		timer: 30,
@@ -329,7 +329,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	9: {
 		name: 'La Tierra - Destino Final',
 		description: '¡Hemos llegado! Activa la dispersión de la cura para salvar a la humanidad.',
-		background: '/img/background/a52782ccb3a30108eb1700950086dcf9.webp',
+		background: '/img/background/bg-earth.webp',
 		phase: 1,
 		energyCost: 10,
 		timer: 30,
@@ -368,7 +368,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	10: {
 		name: 'Tablas Mixtas',
 		description: 'Se mezclan todas las tablas que has aprendido.',
-		background: '/img/background/72e51093f3d7d9840d1600440346128d.webp',
+		background: '/img/background/bg-gas-storm.webp',
 		phase: 2,
 		energyCost: 20,
 		timer: 15,
@@ -406,7 +406,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	11: {
 		name: 'Números Pares',
 		description: 'Solo las tablas pares: 2, 4, 6 y 8.',
-		background: '/img/background/98d0f009f41e6e13f29457f2e3322343.webp',
+		background: '/img/background/bg-asteroid.webp',
 		phase: 2,
 		energyCost: 20,
 		timer: 15,
@@ -444,7 +444,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	12: {
 		name: 'Números Impares',
 		description: 'Solo las tablas impares: 3, 5, 7 y 9.',
-		background: '/img/background/fc5d322f06c104b03e4dc12c7412b59d.webp',
+		background: '/img/background/bg-port.webp',
 		phase: 2,
 		energyCost: 20,
 		timer: 15,
@@ -482,7 +482,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	13: {
 		name: 'Tabla del 11',
 		description: 'La tabla del 11 es especial: siempre se repite el dígito.',
-		background: '/img/background/6534a0e7a2b34c5da06c9c82c87002c3.webp',
+		background: '/img/background/bg-station.webp',
 		phase: 2,
 		energyCost: 20,
 		timer: 15,
@@ -520,7 +520,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	14: {
 		name: 'Tabla del 12',
 		description: 'La tabla del 12 combina el 3 y el 4.',
-		background: '/img/background/8c3e0b3d29fb4c10aa6010992521176e.webp',
+		background: '/img/background/bg-void.webp',
 		phase: 2,
 		energyCost: 20,
 		timer: 15,
@@ -558,7 +558,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	15: {
 		name: 'Relámpago',
 		description: '¡Velocidad extrema! Responde antes de que se agote el tiempo.',
-		background: '/img/background/0dfc78ea7d3f2c1e08b50da43e6b528f.webp',
+		background: '/img/background/bg-nebula.webp',
 		phase: 2,
 		energyCost: 20,
 		timer: 8,
@@ -596,7 +596,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	16: {
 		name: 'Terror del 6 y 9',
 		description: 'Las tablas del 6 y el 9 suenan parecido. ¡Cuidado con las trampas!',
-		background: '/img/background/a52782ccb3a30108eb1700950086dcf9.webp',
+		background: '/img/background/bg-earth.webp',
 		phase: 2,
 		energyCost: 20,
 		timer: 15,
@@ -634,7 +634,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	17: {
 		name: 'Modo Tienda',
 		description: 'Resuelve problemas de compra: "Si algo cuesta X y compras Y, ¿cuánto pagas?"',
-		background: '/img/background/6534a0e7a2b34c5da06c9c82c87002c3.webp',
+		background: '/img/background/bg-station.webp',
 		phase: 3,
 		energyCost: 35,
 		timer: 12,
@@ -672,7 +672,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	18: {
 		name: 'Ecuaciones Inversas',
 		description: 'Resuelve: "6 × ? = 24". Encuentra el número que falta.',
-		background: '/img/background/98d0f009f41e6e13f29457f2e3322343.webp',
+		background: '/img/background/bg-asteroid.webp',
 		phase: 3,
 		energyCost: 35,
 		timer: 12,
@@ -710,7 +710,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	19: {
 		name: 'Geometría',
 		description: 'Cuenta bloques por filas y columnas para encontrar el área.',
-		background: '/img/background/72e51093f3d7d9840d1600440346128d.webp',
+		background: '/img/background/bg-gas-storm.webp',
 		phase: 3,
 		energyCost: 35,
 		timer: 12,
@@ -748,7 +748,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	20: {
 		name: 'Verdadero o Falso',
 		description: '¿Es correcta la afirmación? Responde rápido.',
-		background: '/img/background/fc5d322f06c104b03e4dc12c7412b59d.webp',
+		background: '/img/background/bg-port.webp',
 		phase: 3,
 		energyCost: 35,
 		timer: 12,
@@ -786,7 +786,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	21: {
 		name: 'Series Numéricas',
 		description: 'Completa la serie: 2, 4, 6, 8, ¿cuál sigue?',
-		background: '/img/background/8c3e0b3d29fb4c10aa6010992521176e.webp',
+		background: '/img/background/bg-void.webp',
 		phase: 3,
 		energyCost: 35,
 		timer: 12,
@@ -824,7 +824,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	22: {
 		name: 'Mezcla Total',
 		description: 'Todas las mecánicas juntas. ¡Demuestra lo que sabes!',
-		background: '/img/background/a52782ccb3a30108eb1700950086dcf9.webp',
+		background: '/img/background/bg-earth.webp',
 		phase: 3,
 		energyCost: 35,
 		timer: 12,
@@ -862,7 +862,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	23: {
 		name: 'Desafío Extremo',
 		description: '¡Velocidad y precisión al máximo! El tiempo vuela.',
-		background: '/img/background/98d0f009f41e6e13f29457f2e3322343.webp',
+		background: '/img/background/bg-asteroid.webp',
 		phase: 3,
 		energyCost: 35,
 		timer: 8,
@@ -900,7 +900,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	24: {
 		name: 'Pre-Jefe',
 		description: 'El último desafío antes del jefe final. ¡Prepárate!',
-		background: '/img/background/fc5d322f06c104b03e4dc12c7412b59d.webp',
+		background: '/img/background/bg-port.webp',
 		phase: 3,
 		energyCost: 35,
 		timer: 12,
@@ -938,7 +938,7 @@ export const levelInfo: Record<number, LevelInfo> = {
 	25: {
 		name: 'Jefe Final - Nova',
 		description: 'Enfrenta a Nova en una maratón de 20 preguntas. ¡Es la batalla final!',
-		background: '/img/background/6534a0e7a2b34c5da06c9c82c87002c3.webp',
+		background: '/img/background/bg-station.webp',
 		phase: 4,
 		energyCost: 60,
 		timer: 7,
