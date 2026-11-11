@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { playClick } from '$lib/audio/audio';
 	import { game } from '$lib/stores/game.svelte';
-	import spaceshipSvg from '$lib/assets/icons/spaceship.svg';
+	import { ASSET_PATHS } from '$lib/constants/assets';
 	import { levelInfo } from '$lib/constants/levels';
 
 	let {
 		table,
 		status,
 		stars = 0,
+		hasShip = false,
 		onclick
 	}: {
 		table: number;
 		status: 'completed' | 'current' | 'locked';
 		stars?: number;
+		hasShip?: boolean;
 		onclick?: () => void;
 	} = $props();
 
@@ -67,10 +69,14 @@
 			? ' - siguiente'
 			: ' - bloqueada'}"
 >
-	<!-- Nave de Foxy (solo en nodo actual) -->
-	{#if isCurrent}
-		<div class="absolute -top-10 z-10 animate-[float-spaceship_2s_ease-in-out_infinite]">
-			<img src={spaceshipSvg} alt="Nave de Foxy" class="h-10 w-10 drop-shadow-lg" />
+	<!-- Nave de Foxy (en nodo actual o último alcanzado) -->
+	{#if isCurrent || hasShip}
+		<div class="absolute -top-11 z-10 animate-[float-spaceship_2s_ease-in-out_infinite]">
+			<img
+				src={ASSET_PATHS.icons.spaceship}
+				alt="Nave de Foxy"
+				class="h-11 w-11 object-contain drop-shadow-[0_4px_10px_rgba(251,191,36,0.6)]"
+			/>
 		</div>
 	{/if}
 

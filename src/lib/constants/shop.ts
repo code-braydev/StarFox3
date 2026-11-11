@@ -159,7 +159,7 @@ export const shopItems: ShopItem[] = [
 		name: 'Poción de Energía',
 		category: 'potion',
 		price: 15,
-		description: 'Recarga 50 puntos de energía inmediatamente.'
+		description: 'Recarga +50⚡ inmediatamente. Máximo 5 compras (cooldown de 3 min).'
 	}
 ];
 

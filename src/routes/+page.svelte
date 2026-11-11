@@ -1,6 +1,5 @@
 <script lang="ts">
-	import Modal from '$lib/components/Modal.svelte';
-	import GoalModal from '$lib/components/GoalModal.svelte';
+	import { Modal, GoalModal } from '$lib/components/ui';
 	import { game } from '$lib/stores/game.svelte';
 	import { goto } from '$app/navigation';
 
@@ -23,7 +22,14 @@
 		showNameModal = false;
 		if (!game.hasGoal) {
 			showGoalModal = true;
+		} else {
+			goto('/map');
 		}
+	}
+
+	function enterMasterMode() {
+		game.activateMasterProfile('MASTER FOX');
+		goto('/map');
 	}
 </script>
 
@@ -101,6 +107,30 @@
 			class="animate-float font-sans text-base tracking-[0.15em] text-[#94A3B8] [text-shadow:0_1px_4px_rgba(0,0,0,0.7)] max-md:text-[0.85rem]"
 			>INICIAR MISIÓN</span
 		>
+
+		<!-- Enlaces secundarios -->
+		<div class="mt-4 flex flex-col items-center gap-2">
+			<p class="text-xs text-gray-500">¿Tienes código de clase?</p>
+			<button
+				class="cursor-pointer rounded-xl border border-amber-400/40 bg-transparent px-6 py-2 text-sm text-amber-400 transition-all hover:bg-amber-400/10"
+				onclick={() => goto('/join')}
+			>
+				🚀 Unirme a mi clase
+			</button>
+			<a
+				href="/teacher/login"
+				class="mt-2 text-xs text-gray-500 transition-colors hover:text-amber-400"
+			>
+				Soy profesor → Panel
+			</a>
+			<button
+				type="button"
+				class="mt-1 cursor-pointer rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[0.7rem] text-emerald-300 transition-all hover:border-emerald-400 hover:bg-emerald-500/20"
+				onclick={enterMasterMode}
+			>
+				👑 Modo Maestro (Pruebas: Todo desbloqueado + 💎 ∞)
+			</button>
+		</div>
 	</div>
 </div>
 

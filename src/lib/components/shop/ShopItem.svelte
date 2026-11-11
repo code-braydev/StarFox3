@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { game } from '$lib/stores/game.svelte';
+	import { getEffectiveShopPrice } from '$lib/stores/logic/passives';
 	import { playClick, playGem } from '$lib/audio/audio';
 	import type { ShopItem } from '$lib/constants/shop';
 
@@ -11,12 +13,47 @@
 		onPurchase?: () => void;
 	} = $props();
 
-	let isPurchased = $derived(game.shop.purchased.includes(item.id));
-	let isEquipped = $derived(() => {
-		if (item.category === 'potion') return false;
-		return game.shop.equipped[item.category as keyof typeof game.shop.equipped] === item.id;
+	const POTION_MAX = 5;
+	const POTION_COOLDOWN_MS = 3 * 60 * 1000;
+
+	let now = $state(Date.now());
+
+	onMount(() => {
+		if (item.category !== 'potion') return;
+		const interval = setInterval(() => {
+			now = Date.now();
+		}, 1000);
+		return () => clearInterval(interval);
 	});
-	let canAfford = $derived(game.progress.gems >= item.price);
+
+	let isPotion = $derived(item.category === 'potion');
+	let potionPurchases = $derived(game.shop.potionPurchases ?? 0);
+	let potionMaxReached = $derived(isPotion && potionPurchases >= POTION_MAX);
+	let potionRemainingMs = $derived.by(() => {
+		if (!isPotion) return 0;
+		const lastAt = game.shop.lastPotionPurchasedAt ?? 0;
+		if (!lastAt) return 0;
+		return Math.max(0, POTION_COOLDOWN_MS - (now - lastAt));
+	});
+	let potionOnCooldown = $derived(isPotion && !potionMaxReached && potionRemainingMs > 0);
+
+	function formatCooldown(ms: number): string {
+		const totalSec = Math.ceil(ms / 1000);
+		const m = Math.floor(totalSec / 60);
+		const s = totalSec % 60;
+		return `${m}:${s.toString().padStart(2, '0')}`;
+	}
+
+	let isPurchased = $derived(
+		isPotion ? potionMaxReached : game.shop.purchased.includes(item.id)
+	);
+	let isEquipped = $derived(
+		!isPotion &&
+			game.shop.equipped[item.category as keyof typeof game.shop.equipped] === item.id
+	);
+	let effectivePrice = $derived(getEffectiveShopPrice(item.price, game.characters.selected));
+	let hasDiscount = $derived(effectivePrice < item.price);
+	let canAfford = $derived(game.progress.gems >= effectivePrice);
 
 	let imgFailed = $state(false);
 
@@ -28,13 +65,19 @@
 		potion: '🧪'
 	};
 
+	const themeSwatches: Record<string, { bg: string; card: string; accent: string }> = {
+		'theme-safari': { bg: '#1e1913', card: '#33281d', accent: '#eab308' },
+		'theme-ocean': { bg: '#0c1a2e', card: '#132d4c', accent: '#38bdf8' },
+		'theme-neon': { bg: '#190a2a', card: '#2d124d', accent: '#f43f5e' },
+		'theme-fire': { bg: '#220d0d', card: '#3b1616', accent: '#f97316' },
+		'theme-forest': { bg: '#0d1e13', card: '#163522', accent: '#22c55e' }
+	};
+
 	function handleBuy() {
-		if (!canAfford || isPurchased) return;
+		if (!canAfford || isPurchased || potionOnCooldown) return;
 		if (game.buyItem(item.id, item.price)) {
 			if (game.soundEnabled) playGem();
-			if (item.category === 'potion') {
-				game.addEnergy(50);
-			}
+			now = Date.now();
 			onPurchase?.();
 		}
 	}
@@ -42,7 +85,7 @@
 	function handleEquip() {
 		if (!isPurchased || item.category === 'potion') return;
 		if (game.soundEnabled) playClick();
-		if (isEquipped()) {
+		if (isEquipped) {
 			game.equipItem(item.category as 'background' | 'theme' | 'frame' | 'accessory', null);
 		} else {
 			game.equipItem(item.category as 'background' | 'theme' | 'frame' | 'accessory', item.id);
@@ -60,7 +103,7 @@
 <div
 	class="flex flex-col items-center gap-3 rounded-2xl border-2 p-4 transition-all duration-300 max-md:p-3
 		{isPurchased
-		? isEquipped()
+		? isEquipped
 			? 'border-amber-400 bg-[#252540] shadow-[0_0_15px_rgba(251,191,36,0.3)]'
 			: 'border-emerald-400/50 bg-[#252540]'
 		: canAfford
@@ -69,10 +112,18 @@
 >
 	<!-- Preview / Icono del Item con Fallback -->
 	<div
-		class="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0f0f2a] p-1 text-2xl overflow-hidden border border-gray-700 max-md:h-12 max-md:w-12"
+		class="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-gray-700 bg-[#0f0f2a] p-1 text-2xl max-md:h-12 max-md:w-12"
 	>
-		<!-- RECURSO: {getAssetPath()} (Si agregas el archivo se cargará automáticamente aquí) -->
-		{#if getAssetPath() && !imgFailed}
+		{#if item.category === 'theme' && themeSwatches[item.id]}
+			{@const swatch = themeSwatches[item.id]}
+			<div
+				class="flex h-full w-full flex-col justify-between rounded-xl p-1.5"
+				style="background-color: {swatch.bg}; border: 2px solid {swatch.accent};"
+			>
+				<div class="h-2.5 w-full rounded-sm" style="background-color: {swatch.card};"></div>
+				<div class="h-3 w-3 self-end rounded-full" style="background-color: {swatch.accent};"></div>
+			</div>
+		{:else if getAssetPath() && !imgFailed}
 			<img
 				src={getAssetPath()}
 				alt={item.name}
@@ -90,25 +141,56 @@
 	<h3 class="text-center font-arcade text-xs text-white max-md:text-[0.65rem]">{item.name}</h3>
 
 	<!-- Descripción -->
-	<p class="text-center text-[0.7rem] text-gray-400 max-md:text-[0.6rem] leading-relaxed line-clamp-2">
+	<p
+		class="line-clamp-2 text-center text-[0.7rem] leading-relaxed text-gray-400 max-md:text-[0.6rem]"
+	>
 		{item.description}
 	</p>
 
+	{#if isPotion}
+		<span class="font-arcade text-[0.6rem] text-cyan-400">
+			Usos: {potionPurchases}/{POTION_MAX}
+		</span>
+	{/if}
+
 	<!-- Botón Comprar / Equipar -->
-	{#if isPurchased}
-		{#if item.category === 'potion'}
-			<span class="text-[0.7rem] font-bold text-emerald-400">✅ Aplicado</span>
+	{#if isPotion}
+		{#if potionMaxReached}
+			<span class="rounded-xl border border-gray-600 bg-gray-800/60 px-3 py-2 text-center font-arcade text-[0.6rem] text-gray-400 w-full">
+				AGOTADO (5/5)
+			</span>
+		{:else if potionOnCooldown}
+			<button
+				disabled
+				class="w-full cursor-not-allowed rounded-xl border border-amber-400/40 bg-amber-500/10 py-2 font-arcade text-[0.6rem] font-bold text-amber-300"
+			>
+				⏳ {formatCooldown(potionRemainingMs)}
+			</button>
 		{:else}
 			<button
-				class="w-full cursor-pointer rounded-xl border-2 py-2 font-arcade text-[0.65rem] font-bold transition-all
-					{isEquipped()
-					? 'border-amber-400 bg-amber-400/20 text-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.3)]'
-					: 'border-emerald-400/50 bg-emerald-400/10 text-emerald-400 hover:bg-emerald-400/20'}"
-				onclick={handleEquip}
+				class="w-full cursor-pointer rounded-xl border-none py-2 font-arcade text-[0.65rem] font-bold transition-all
+					{canAfford
+					? 'bg-gradient-to-r from-amber-400 to-amber-500 text-[#1E1E2F] hover:scale-102 hover:shadow-[0_0_15px_rgba(251,191,36,0.4)]'
+					: 'cursor-not-allowed bg-gray-700 text-gray-400'}"
+				disabled={!canAfford}
+				onclick={handleBuy}
 			>
-				{isEquipped() ? '✓ EQUIPADO' : 'EQUIPAR'}
+				💎 {effectivePrice} ({POTION_MAX - potionPurchases} disp.)
+				{#if hasDiscount}
+					<span class="ml-1 text-[0.55rem] line-through opacity-70">{item.price}</span>
+				{/if}
 			</button>
 		{/if}
+	{:else if isPurchased}
+		<button
+			class="w-full cursor-pointer rounded-xl border-2 py-2 font-arcade text-[0.65rem] font-bold transition-all
+				{isEquipped
+				? 'border-amber-400 bg-amber-400/20 text-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.3)]'
+				: 'border-emerald-400/50 bg-emerald-400/10 text-emerald-400 hover:bg-emerald-400/20'}"
+			onclick={handleEquip}
+		>
+			{isEquipped ? '✓ EQUIPADO' : 'EQUIPAR'}
+		</button>
 	{:else}
 		<button
 			class="w-full cursor-pointer rounded-xl border-none py-2 font-arcade text-[0.65rem] font-bold transition-all
@@ -118,7 +200,10 @@
 			disabled={!canAfford}
 			onclick={handleBuy}
 		>
-			💎 {item.price}
+			💎 {effectivePrice}
+			{#if hasDiscount}
+				<span class="ml-1 text-[0.55rem] line-through opacity-70">{item.price}</span>
+			{/if}
 		</button>
 	{/if}
 </div>

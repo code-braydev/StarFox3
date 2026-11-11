@@ -2,8 +2,8 @@
 	import { goto } from '$app/navigation';
 	import { playClick, playSuccess, playError } from '$lib/audio/audio';
 	import { game } from '$lib/stores/game.svelte';
-	import spaceshipSvg from '$lib/assets/icons/spaceship.svg';
-	import { levelInfo } from '$lib/constants/levels';
+	import { ASSET_PATHS } from '$lib/constants/assets';
+	import { levelInfo, getLevelDifficulty, getLevelMechanic } from '$lib/constants/levels';
 
 	let {
 		open,
@@ -16,6 +16,8 @@
 	} = $props();
 
 	let currentLevel = $derived(levelInfo[table]);
+	let difficulty = $derived(getLevelDifficulty(table));
+	let mechanic = $derived(getLevelMechanic(table));
 	let stars = $derived(game.progress.stars[table] ?? 0);
 	let isCompleted = $derived(game.progress.levelsCompleted.includes(table));
 	let isCurrent = $derived.by(() => {
@@ -58,10 +60,10 @@
 		onClose();
 	}
 
-	function goToMinigames() {
+	function goToSimulator() {
 		if (game.soundEnabled) playClick();
 		onClose();
-		goto('/minigames');
+		goto('/training');
 	}
 </script>
 
@@ -84,7 +86,7 @@
 		>
 			<!-- Nave de Foxy -->
 			<div class="mb-3 animate-[float-spaceship_2s_ease-in-out_infinite]">
-				<img src={spaceshipSvg} alt="Nave de Foxy" class="mx-auto h-14 w-14" />
+				<img src={ASSET_PATHS.icons.spaceship} alt="Nave de Foxy" class="mx-auto h-14 w-14 object-contain" />
 			</div>
 
 			<!-- Titulo -->
@@ -92,10 +94,22 @@
 				{currentLevel?.name ?? 'Nivel'}
 			</h2>
 
-			<!-- Estado e Indicador de Energía -->
-			<div class="mb-3 flex items-center justify-center gap-2">
+			<!-- Estado e Indicador de Energía + Dificultad Discreta -->
+			<div class="mb-3 flex flex-wrap items-center justify-center gap-1.5">
+				<span
+					class="rounded-full border px-2.5 py-0.5 text-[0.65rem] font-semibold {difficulty.badgeClass}"
+				>
+					{difficulty.label}
+				</span>
+				<span
+					class="rounded-full border border-gray-600/60 bg-slate-900/70 px-2.5 py-0.5 text-[0.65rem] text-gray-300"
+				>
+					{mechanic.icon} {mechanic.label}
+				</span>
 				{#if isCompleted}
-					<span class="rounded-full bg-emerald-500/20 px-3 py-0.5 text-xs font-bold text-emerald-400">
+					<span
+						class="rounded-full bg-emerald-500/20 px-3 py-0.5 text-xs font-bold text-emerald-400"
+					>
 						✓ Superado · Práctica Libre (0⚡)
 					</span>
 				{:else if isCurrent}
@@ -134,7 +148,9 @@
 				<p class="text-[0.85rem] text-[#94A3B8]">
 					{currentLevel?.description ?? ''}
 				</p>
-				<div class="mt-2 flex items-center justify-between border-t border-gray-700/50 pt-2 text-xs">
+				<div
+					class="mt-2 flex items-center justify-between border-t border-gray-700/50 pt-2 text-xs"
+				>
 					<span class="text-gray-400">Tu energía actual:</span>
 					<span class="font-arcade {hasEnoughEnergy ? 'text-cyan-400' : 'text-rose-400'}">
 						⚡ {game.energy.current}/{game.energy.max}
@@ -144,16 +160,19 @@
 
 			<!-- Alerta de falta de energía -->
 			{#if !hasEnoughEnergy}
-				<div class="mb-4 rounded-xl border border-rose-500/50 bg-rose-500/10 p-3 text-xs text-rose-300">
+				<div
+					class="mb-4 rounded-xl border border-rose-500/50 bg-rose-500/10 p-3 text-xs text-rose-300"
+				>
 					<p class="font-bold">⚠️ ¡Combustible insuficiente!</p>
 					<p class="mt-0.5 text-[0.7rem] text-rose-200">
-						Necesitas {energyCost}⚡ pero solo tienes {game.energy.current}⚡. Realiza tareas en los minijuegos para recargar.
+						Necesitas {energyCost}⚡ pero solo tienes {game.energy.current}⚡. Ve al Simulador en modo
+						Recarga para recuperar energía.
 					</p>
 					<button
 						class="mt-2 w-full cursor-pointer rounded-lg bg-amber-400 py-1.5 font-arcade text-[0.65rem] text-slate-950 transition-all hover:brightness-110"
-						onclick={goToMinigames}
+						onclick={goToSimulator}
 					>
-						⚡ IR A MINIJUEGOS A RECARGAR
+						⚡ IR AL SIMULADOR A RECARGAR
 					</button>
 				</div>
 			{/if}

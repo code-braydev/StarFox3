@@ -87,26 +87,21 @@
 		title="Haz clic para interactuar con tu compañero"
 	>
 		<!-- Avatar Base con animación suave -->
-		<div class="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2a2a4e] to-[#15152a] p-1.5 shadow-[0_0_25px_rgba(251,191,36,0.25)] max-md:h-20 max-md:w-20">
+		<div class="relative flex h-28 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2a2a4e] to-[#15152a] p-1.5 shadow-[0_0_25px_rgba(251,191,36,0.25)] max-md:h-22 max-md:w-20">
 			
-			<!-- RECURSO: static/img/characters/{character.id}.webp -->
-			{#if character.id === 'foxy' && !imageFailed}
+			<!-- RECURSO: static/img/characters/bodies/{character.id}.png (Fallback: heads/{character.id}.png) -->
+			{#if !imageFailed}
 				<img
-					src="/img/avatar-foxy.webp"
+					src="/img/characters/bodies/{character.id}.png"
 					alt={character.name}
-					class="h-full w-full rounded-xl object-contain"
-					onerror={() => {
-						imageFailed = true;
-					}}
-				/>
-			{:else if !imageFailed}
-				<!-- RECURSO: static/img/characters/{character.id}.webp (Colocar aquí la imagen del personaje) -->
-				<img
-					src="/img/characters/{character.id}.webp"
-					alt={character.name}
-					class="h-full w-full rounded-xl object-contain"
-					onerror={() => {
-						imageFailed = true;
+					class="h-full w-full rounded-xl object-contain filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]"
+					onerror={(e) => {
+						const img = e.currentTarget as HTMLImageElement;
+						if (!img.src.includes('/heads/')) {
+							img.src = `/img/characters/heads/${character.id}.png`;
+						} else {
+							imageFailed = true;
+						}
 					}}
 				/>
 			{:else}

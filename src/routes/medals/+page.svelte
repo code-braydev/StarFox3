@@ -2,8 +2,9 @@
 	import { goto } from '$app/navigation';
 	import { game } from '$lib/stores/game.svelte';
 	import { medals, medalCategories } from '$lib/constants/medals';
+	import { getEquippedBackground } from '$lib/constants/assets';
 	import { playClick } from '$lib/audio/audio';
-	import MedalCard from '$lib/components/medals/MedalCard.svelte';
+	import { MedalCard } from '$lib/components/medals';
 
 	let selectedCategory = $state<string>('all');
 
@@ -29,9 +30,14 @@
 	<title>Salón de la Fama - Star Fox 3</title>
 </svelte:head>
 
-<div class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-[#0f0f2a]">
+<div
+	class="relative flex min-h-dvh w-full flex-col items-center overflow-hidden bg-[#0f0f2a] bg-cover bg-center bg-no-repeat"
+	style="background-image: url('{getEquippedBackground(game.shop.equipped.background)}');"
+>
+	<div class="absolute inset-0 bg-slate-950/55"></div>
+
 	<header
-		class="relative z-20 flex w-full items-center justify-between px-6 py-4 max-md:px-4 max-md:py-3"
+		class="theme-header relative z-20 flex w-full items-center justify-between border-b-2 border-amber-400/40 bg-[#252540]/75 px-6 py-4 backdrop-blur-md max-md:px-4 max-md:py-3"
 	>
 		<button
 			class="cursor-pointer rounded-xl border border-gray-600 bg-[#252540] px-4 py-2 text-xs text-gray-300 transition-all hover:border-amber-400/50 hover:text-white max-md:px-3 max-md:text-[0.65rem]"

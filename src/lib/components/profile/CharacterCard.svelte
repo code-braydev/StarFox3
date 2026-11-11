@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Character } from '$lib/constants/characters';
+	import { getCharacterHead, type Character } from '$lib/constants/characters';
 	import { game } from '$lib/stores/game.svelte';
 	import { playClick, playSuccess } from '$lib/audio/audio';
 
@@ -16,6 +16,7 @@
 	} = $props();
 
 	let canUnlock = $derived(!isUnlocked && game.canUnlockCharacter(character.id));
+	let imageFailed = $state(false);
 
 	let animalEmoji = $derived(
 		character.animal === 'Zorro'
@@ -96,10 +97,21 @@
 	{/if}
 
 	<div
-		class="flex h-12 w-12 items-center justify-center rounded-full bg-[#0f0f2a] text-2xl transition-transform duration-300 max-md:h-10 max-md:w-10 max-md:text-xl
+		class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-amber-400/30 bg-[#0f0f2a] p-0.5 transition-transform duration-300 max-md:h-11 max-md:w-11
 			{isUnlocked ? 'group-hover:scale-110' : ''}"
 	>
-		{animalEmoji}
+		{#if !imageFailed}
+			<img
+				src={getCharacterHead(character.id)}
+				alt={character.name}
+				class="h-full w-full rounded-full object-cover"
+				onerror={() => {
+					imageFailed = true;
+				}}
+			/>
+		{:else}
+			<span class="text-2xl max-md:text-xl">{animalEmoji}</span>
+		{/if}
 	</div>
 
 	<div class="text-center">
