@@ -111,31 +111,65 @@
 			: 'border-gray-700 bg-[#1a1a2e] opacity-60'}"
 >
 	<!-- Preview / Icono del Item con Fallback -->
-	<div
-		class="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-gray-700 bg-[#0f0f2a] p-1 text-2xl max-md:h-12 max-md:w-12"
-	>
-		{#if item.category === 'theme' && themeSwatches[item.id]}
-			{@const swatch = themeSwatches[item.id]}
-			<div
-				class="flex h-full w-full flex-col justify-between rounded-xl p-1.5"
-				style="background-color: {swatch.bg}; border: 2px solid {swatch.accent};"
-			>
-				<div class="h-2.5 w-full rounded-sm" style="background-color: {swatch.card};"></div>
-				<div class="h-3 w-3 self-end rounded-full" style="background-color: {swatch.accent};"></div>
-			</div>
-		{:else if getAssetPath() && !imgFailed}
-			<img
-				src={getAssetPath()}
-				alt={item.name}
-				class="h-full w-full object-contain"
-				onerror={() => {
-					imgFailed = true;
-				}}
-			/>
-		{:else}
-			<span>{categoryEmoji[item.category]}</span>
-		{/if}
-	</div>
+	{#if item.category === 'background'}
+		<div
+			class="relative h-24 w-full overflow-hidden rounded-xl border-2 bg-[#0f0f2a]"
+			style="border-color: {item.uiPreview?.accent ?? '#fbbf24'}66;"
+		>
+			{#if !imgFailed}
+				<img
+					src={getAssetPath()}
+					alt={item.name}
+					class="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+					onerror={() => {
+						imgFailed = true;
+					}}
+				/>
+			{:else}
+				<div class="flex h-full w-full items-center justify-center text-3xl">
+					{categoryEmoji[item.category]}
+				</div>
+			{/if}
+			{#if item.uiPreview}
+				<div
+					class="absolute right-1.5 bottom-1.5 left-1.5 flex items-center justify-between rounded-lg border px-2 py-1 text-[0.55rem] font-bold text-white shadow-md backdrop-blur-md"
+					style="background-color: {item.uiPreview.bg}dd; border-color: {item.uiPreview.accent};"
+				>
+					<span class="truncate">{item.uiPreview.label}</span>
+					<span
+						class="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+						style="background-color: {item.uiPreview.accent}; box-shadow: 0 0 6px {item.uiPreview.accent};"
+					></span>
+				</div>
+			{/if}
+		</div>
+	{:else}
+		<div
+			class="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-gray-700 bg-[#0f0f2a] p-1 text-2xl max-md:h-12 max-md:w-12"
+		>
+			{#if item.category === 'theme' && themeSwatches[item.id]}
+				{@const swatch = themeSwatches[item.id]}
+				<div
+					class="flex h-full w-full flex-col justify-between rounded-xl p-1.5"
+					style="background-color: {swatch.bg}; border: 2px solid {swatch.accent};"
+				>
+					<div class="h-2.5 w-full rounded-sm" style="background-color: {swatch.card};"></div>
+					<div class="h-3 w-3 self-end rounded-full" style="background-color: {swatch.accent};"></div>
+				</div>
+			{:else if getAssetPath() && !imgFailed}
+				<img
+					src={getAssetPath()}
+					alt={item.name}
+					class="h-full w-full object-contain"
+					onerror={() => {
+						imgFailed = true;
+					}}
+				/>
+			{:else}
+				<span>{categoryEmoji[item.category]}</span>
+			{/if}
+		</div>
+	{/if}
 
 	<!-- Nombre -->
 	<h3 class="text-center font-arcade text-xs text-white max-md:text-[0.65rem]">{item.name}</h3>

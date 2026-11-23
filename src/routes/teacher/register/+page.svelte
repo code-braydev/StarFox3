@@ -126,10 +126,15 @@
 					</button>
 				</form>
 
-				<div class="mt-6 text-center">
+				<div class="mt-6 space-y-2 text-center">
 					<p class="text-sm text-gray-400">
 						¿Ya tienes cuenta?
 						<a href="/teacher/login" class="text-amber-400 hover:underline">Inicia sesión</a>
+					</p>
+					<p class="pt-2">
+						<a href="/" class="text-xs text-gray-500 transition-colors hover:text-white">
+							← Volver al inicio del juego
+						</a>
 					</p>
 				</div>
 			</div>

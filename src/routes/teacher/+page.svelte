@@ -134,7 +134,13 @@
 				{/if}
 			</p>
 		</div>
-		<div class="flex items-center gap-3">
+		<div class="flex flex-wrap items-center gap-3">
+			<button
+				class="cursor-pointer rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-sm text-gray-400 transition-all hover:border-amber-400/50 hover:text-white"
+				onclick={() => goto('/')}
+			>
+				🎮 Ir al Juego
+			</button>
 			<button
 				class="cursor-pointer rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-sm text-gray-300 transition-all hover:border-amber-400/50 hover:text-white disabled:opacity-50"
 				disabled={refreshing || loading}

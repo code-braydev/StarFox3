@@ -5,6 +5,7 @@
 	import { afterNavigate } from '$app/navigation';
 	import { game } from '$lib/stores/game.svelte';
 	import { session } from '$lib/stores/session.svelte';
+	import { resolveActiveWorldTheme } from '$lib/constants/shop';
 	import { telemetry } from '$lib/sync/outbox';
 	import { AchievementToast } from '$lib/components/medals';
 
@@ -19,20 +20,40 @@
 		}
 	});
 
-	// Gestión dinámica del tema comprado en la tienda
+	// Gestión dinámica y coherente del Mundo + Tema UI comprado en la tienda
 	$effect(() => {
 		if (typeof document !== 'undefined') {
-			const theme = game.shop.equipped.theme || 'default';
-			document.documentElement.setAttribute('data-theme', theme);
+			const world = resolveActiveWorldTheme(
+				game.shop.equipped.background,
+				game.shop.equipped.theme
+			);
+			document.documentElement.setAttribute('data-theme', world.uiTheme || 'default');
 		}
 	});
 
-	// Inicia la sesión de telemetría en cuanto el alumno está listo y vinculado
+	// Inicia la sesión de telemetría e hidrata progreso en cuanto el alumno está listo y autenticado
 	$effect(() => {
-		if (session.ready && session.isStudent && !sessionStarted) {
+		if (session.ready && session.isStudent && session.authUser && !sessionStarted) {
 			sessionStarted = true;
 			lastTickTs = Date.now();
 			telemetry.sessionStart();
+			session
+				.authFetch('/api/student/me')
+				.then(async (res) => {
+					if (res.status === 404) {
+						session.studentLeave();
+						return;
+					}
+					if (res.ok) {
+						const data = await res.json();
+						if (data.progress && !game.isGodMode) {
+							game.hydrateFromServer(data.progress);
+						}
+					}
+				})
+				.catch(() => {
+					// Modo offline: continúa con el estado local
+				});
 		}
 	});
 

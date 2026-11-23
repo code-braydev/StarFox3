@@ -116,10 +116,15 @@
 				</div>
 			{/if}
 
-			<div class="mt-6 text-center">
+			<div class="mt-6 space-y-2 text-center">
 				<p class="text-sm text-gray-400">
 					¿No tienes cuenta?
 					<a href="/teacher/register" class="text-amber-400 hover:underline">Regístrate aquí</a>
+				</p>
+				<p class="pt-2">
+					<a href="/" class="text-xs text-gray-500 transition-colors hover:text-white">
+						← Volver al inicio del juego
+					</a>
 				</p>
 			</div>
 		</div>

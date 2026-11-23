@@ -20,6 +20,13 @@
 	// Actions
 	let deleting = $state(false);
 	let showDelete = $state(false);
+	let copied = $state(false);
+
+	// Manual student add
+	let showAddStudents = $state(false);
+	let manualNamesText = $state('');
+	let addingStudents = $state(false);
+	let addStudentsError = $state('');
 
 	onMount(() => {
 		loadClass();
@@ -89,6 +96,40 @@
 	async function copyInvite() {
 		const url = `${window.location.origin}/join/${cls?.joinCode}`;
 		await navigator.clipboard.writeText(url);
+		copied = true;
+		setTimeout(() => (copied = false), 2000);
+	}
+
+	async function addManualStudents() {
+		const names = manualNamesText
+			.split(/\r?\n/)
+			.map((n) => n.replace(/\s+/g, ' ').trim())
+			.filter((n) => n.length >= 2);
+		if (names.length === 0) {
+			addStudentsError = 'Ingresa al menos un nombre (mínimo 2 caracteres)';
+			return;
+		}
+		addingStudents = true;
+		addStudentsError = '';
+		try {
+			const res = await session.authFetch(`/api/classes/${classId}/roster`, {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ names, replace: false })
+			});
+			const data = await res.json().catch(() => ({}));
+			if (!res.ok) {
+				addStudentsError = data.error ?? 'Error al agregar alumnos';
+				return;
+			}
+			manualNamesText = '';
+			showAddStudents = false;
+			await loadClass(true);
+		} catch {
+			addStudentsError = 'Error de conexión';
+		} finally {
+			addingStudents = false;
+		}
 	}
 
 	async function togglePinRequirement() {
@@ -207,6 +248,15 @@
 				{refreshing ? '⏳ Actualizando...' : '🔄 Actualizar'}
 			</button>
 			<button
+				class="cursor-pointer rounded-xl border border-emerald-400/50 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300 transition-all hover:bg-emerald-500/20"
+				onclick={() => {
+					addStudentsError = '';
+					showAddStudents = true;
+				}}
+			>
+				+ Agregar Alumno
+			</button>
+			<button
 				class="cursor-pointer rounded-xl border border-amber-400/50 bg-transparent px-4 py-2 text-sm text-amber-400 transition-all hover:bg-amber-400/10"
 				onclick={() => goto(`/teacher/classes/${classId}/import`)}
 			>
@@ -254,13 +304,21 @@
 				<div class="py-20 text-center">
 					<div class="mb-4 text-5xl">📭</div>
 					<h2 class="mb-2 text-lg font-bold text-white">Sin alumnos</h2>
-					<p class="mb-6 text-gray-400">Importa la lista de alumnos desde un Excel para empezar.</p>
-					<button
-						class="cursor-pointer rounded-xl bg-amber-400 px-6 py-3 font-bold text-[#1E1E2F] transition-all hover:scale-105"
-						onclick={() => goto(`/teacher/classes/${classId}/import`)}
-					>
-						Importar Excel
-					</button>
+					<p class="mb-6 text-gray-400">Importa la lista de alumnos desde un Excel o agrégalos manualmente para empezar.</p>
+					<div class="flex flex-wrap justify-center gap-3">
+						<button
+							class="cursor-pointer rounded-xl bg-amber-400 px-6 py-3 font-bold text-[#1E1E2F] transition-all hover:scale-105"
+							onclick={() => goto(`/teacher/classes/${classId}/import`)}
+						>
+							📋 Importar Excel
+						</button>
+						<button
+							class="cursor-pointer rounded-xl border border-emerald-400/50 bg-emerald-500/15 px-6 py-3 font-bold text-emerald-300 transition-all hover:scale-105"
+							onclick={() => (showAddStudents = true)}
+						>
+							+ Agregar Manualmente
+						</button>
+					</div>
 				</div>
 			{:else}
 				<!-- Table -->
@@ -362,7 +420,7 @@
 				class="mb-3 w-full cursor-pointer rounded-xl bg-amber-400 px-6 py-3 font-bold text-[#1E1E2F] transition-all hover:scale-105"
 				onclick={copyInvite}
 			>
-				Copiar enlace
+				{copied ? '✅ ¡Enlace copiado!' : 'Copiar enlace'}
 			</button>
 			<button
 				class="w-full cursor-pointer rounded-xl border border-gray-600 bg-transparent px-6 py-3 text-sm text-gray-400 transition-all hover:text-white"
@@ -370,6 +428,53 @@
 			>
 				Cerrar
 			</button>
+		</div>
+	</div>
+{/if}
+
+<!-- Add students manually modal -->
+{#if showAddStudents}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+		<div class="w-full max-w-md rounded-3xl border border-emerald-400/30 bg-[#252540] p-8">
+			<h2 class="mb-2 text-center text-xl font-bold text-white">Agregar alumno(s)</h2>
+			<p class="mb-4 text-center text-xs text-gray-400">
+				Escribe uno o varios nombres completos (uno por línea). Se añadirán a la lista actual de la clase.
+			</p>
+			<form
+				onsubmit={(e) => {
+					e.preventDefault();
+					addManualStudents();
+				}}
+				class="space-y-4"
+			>
+				<textarea
+					bind:value={manualNamesText}
+					rows="5"
+					placeholder={"Ej:\nSofía Martínez\nMateo Rodríguez\nValentina Gómez"}
+					class="w-full rounded-xl border border-gray-600 bg-[#1E1E2F] px-4 py-3 text-sm text-white outline-none focus:border-emerald-400"
+				></textarea>
+
+				{#if addStudentsError}
+					<p class="text-sm text-red-400">{addStudentsError}</p>
+				{/if}
+
+				<div class="flex gap-3">
+					<button
+						type="button"
+						class="flex-1 cursor-pointer rounded-xl border border-gray-600 bg-transparent px-4 py-3 text-sm text-gray-400 transition-all hover:text-white"
+						onclick={() => (showAddStudents = false)}
+					>
+						Cancelar
+					</button>
+					<button
+						type="submit"
+						disabled={addingStudents || !manualNamesText.trim()}
+						class="flex-1 cursor-pointer rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#1E1E2F] transition-all hover:scale-105 disabled:opacity-50"
+					>
+						{addingStudents ? 'Agregando...' : 'Agregar'}
+					</button>
+				</div>
+			</form>
 		</div>
 	</div>
 {/if}

@@ -80,6 +80,7 @@
 			error = 'El PIN debe tener entre 4 y 8 números';
 			return;
 		}
+		const prevStudentId = session.studentSession?.studentId ?? null;
 		loading = true;
 		error = '';
 		try {
@@ -88,10 +89,13 @@
 				error = result.error ?? 'Error al unirse';
 				return;
 			}
-			if (result.summary) {
-				game.hydrateFromServer(result.summary);
-			}
+			const isDifferentStudent = prevStudentId !== result.studentId;
+			const shouldReplaceLocal = isDifferentStudent || game.isGodMode;
+			game.hydrateFromServer(result.summary ?? null, shouldReplaceLocal);
 			game.setPlayer(result.displayName ?? '', game.player.avatar || 'foxy');
+			if (!game.hasGoal) {
+				game.setGoal('dominate');
+			}
 			telemetry.sessionStart();
 			game.syncProgressSnapshot();
 			step = 'joined';
@@ -220,17 +224,26 @@
 					<p class="mt-3 text-center text-sm text-red-400">{error}</p>
 				{/if}
 
-				<button
-					class="mt-4 w-full cursor-pointer rounded-xl bg-amber-400 px-6 py-3 font-bold text-[#1E1E2F] transition-all hover:scale-105 disabled:opacity-50"
-					disabled={!selectedStudent || loading || (pinRequired && pin.trim().length < 4)}
-					onclick={joinClass}
-				>
-					{loading
-						? 'Entrando...'
-						: pinRequired && selectedStudentEntry && !selectedStudentEntry.hasPin
-							? 'Guardar mi PIN y Entrar 🚀'
-							: '¡Listo! 🚀'}
-				</button>
+				<div class="mt-4 flex gap-3">
+					<button
+						type="button"
+						class="cursor-pointer rounded-xl border border-gray-600 bg-transparent px-4 py-3 text-sm text-gray-400 transition-all hover:text-white"
+						onclick={() => goto('/join')}
+					>
+						← Cambiar código
+					</button>
+					<button
+						class="flex-1 cursor-pointer rounded-xl bg-amber-400 px-6 py-3 font-bold text-[#1E1E2F] transition-all hover:scale-105 disabled:opacity-50"
+						disabled={!selectedStudent || loading || (pinRequired && pin.trim().length < 4)}
+						onclick={joinClass}
+					>
+						{loading
+							? 'Entrando...'
+							: pinRequired && selectedStudentEntry && !selectedStudentEntry.hasPin
+								? 'Guardar mi PIN y Entrar 🚀'
+								: '¡Listo! 🚀'}
+					</button>
+				</div>
 			</div>
 		{:else if step === 'joining'}
 			<div class="flex flex-col items-center py-12">

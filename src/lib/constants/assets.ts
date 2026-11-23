@@ -25,11 +25,17 @@ export const ASSET_PATHS = {
 	}
 } as const;
 
+import { resolveActiveWorldTheme } from './shop';
+
 /**
  * Resuelve la URL del fondo equipado en la tienda o el fondo del mapa por defecto.
  */
-export function getEquippedBackground(equippedBg: string | null | undefined): string {
-	return equippedBg ? ASSET_PATHS.background(equippedBg) : ASSET_PATHS.mapBackground;
+export function getEquippedBackground(
+	equippedBg: string | null | undefined,
+	equippedTheme?: string | null | undefined
+): string {
+	const world = resolveActiveWorldTheme(equippedBg, equippedTheme);
+	return world.backgroundId ? ASSET_PATHS.background(world.backgroundId) : ASSET_PATHS.mapBackground;
 }
 
 /**

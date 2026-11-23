@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { game } from '$lib/stores/game.svelte';
+	import { session } from '$lib/stores/session.svelte';
 	import { characters, getCharacterHead, getCharacterBody, type Character } from '$lib/constants/characters';
 	import { getEquippedBackground, handleAvatarError } from '$lib/constants/assets';
 	import { playClick } from '$lib/audio/audio';
@@ -74,6 +75,53 @@
 			</div>
 		</div>
 
+		<!-- Curso Vinculado (Flujo Estudiante - Profesor) -->
+		<div class="w-full max-w-md rounded-2xl border border-cyan-400/30 bg-[#252540]/90 p-4">
+			{#if session.isStudent && session.studentSession}
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div>
+						<div class="text-xs font-bold text-cyan-400">🏫 CURSO VINCULADO</div>
+						<div class="mt-0.5 text-sm font-bold text-white">
+							{session.studentSession.className} · <span class="font-mono text-amber-400">{session.studentSession.classCode}</span>
+						</div>
+						<div class="text-xs text-gray-400">Alumno: {session.studentSession.displayName}</div>
+					</div>
+					<div class="flex gap-2">
+						<button
+							type="button"
+							class="cursor-pointer rounded-xl border border-amber-400/40 bg-transparent px-3 py-1.5 text-xs text-amber-300 transition-all hover:bg-amber-400/10"
+							onclick={() => goto('/join')}
+						>
+							Cambiar
+						</button>
+						<button
+							type="button"
+							class="cursor-pointer rounded-xl border border-gray-600 bg-transparent px-3 py-1.5 text-xs text-gray-400 transition-all hover:text-white"
+							onclick={() => session.studentLeave()}
+						>
+							Salir
+						</button>
+					</div>
+				</div>
+			{:else}
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div>
+						<div class="text-xs font-bold text-cyan-400">🏫 ¿TIENES CÓDIGO DE CLASE?</div>
+						<div class="mt-0.5 text-xs text-gray-300">
+							Vincúlate al curso de tu profesor para sincronizar tu progreso.
+						</div>
+					</div>
+					<button
+						type="button"
+						class="cursor-pointer rounded-xl bg-amber-400 px-4 py-2 text-xs font-bold text-[#1E1E2F] transition-all hover:scale-105"
+						onclick={() => goto('/join')}
+					>
+						🚀 Unirme a clase
+					</button>
+				</div>
+			{/if}
+		</div>
+
 		<!-- Personaje actual -->
 		<div
 			class="w-full max-w-md rounded-3xl border-2 border-amber-400/30 bg-[#252540] p-6 text-center"
@@ -144,22 +192,17 @@
 			</div>
 		</div>
 
-		<!-- Controles de Prueba / Reinicio -->
+		<!-- Controles de Reinicio -->
 		<div class="mt-4 flex flex-wrap justify-center gap-3 border-t border-gray-800 pt-6 w-full">
-			<button
-				class="cursor-pointer rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-2 text-xs text-emerald-300 transition-all hover:bg-emerald-500/20"
-				onclick={() => game.activateMasterProfile(game.player.name || 'MASTER FOX')}
-			>
-				👑 Activar Usuario Maestro (Niveles 1-25 + 💎 ∞)
-			</button>
 			<button
 				class="cursor-pointer rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-2 text-xs text-red-300 transition-all hover:bg-red-500/20"
 				onclick={() => {
+					session.studentLeave();
 					game.resetAll();
 					goto('/');
 				}}
 			>
-				🔄 Reiniciar Progreso (Modo Normal)
+				🔄 Reiniciar Progreso Completo
 			</button>
 		</div>
 	</div>

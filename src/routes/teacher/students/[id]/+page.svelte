@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { session } from '$lib/stores/session.svelte';
 	import type { StudentDoc, StudentSummary, AttemptDoc, SessionDoc } from '$lib/firebase/types';
 
@@ -11,6 +12,9 @@
 	let sessions = $state<SessionDoc[]>([]);
 	let loading = $state(true);
 	let refreshing = $state(false);
+	let resettingPin = $state(false);
+	let showDeleteModal = $state(false);
+	let deletingStudent = $state(false);
 
 	onMount(() => {
 		loadStudent();
@@ -36,6 +40,44 @@
 		} finally {
 			loading = false;
 			refreshing = false;
+		}
+	}
+
+	async function resetStudentPin() {
+		if (!student || resettingPin) return;
+		resettingPin = true;
+		try {
+			const res = await session.authFetch(`/api/students/${studentId}`, {
+				method: 'PATCH',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ resetPin: true })
+			});
+			if (res.ok) {
+				student = { ...student, pin: '' };
+			}
+		} catch {
+			// ignore
+		} finally {
+			resettingPin = false;
+		}
+	}
+
+	async function deleteStudent() {
+		if (!student || deletingStudent) return;
+		deletingStudent = true;
+		const targetClassId = student.classId;
+		try {
+			const res = await session.authFetch(`/api/students/${studentId}`, {
+				method: 'DELETE'
+			});
+			if (res.ok) {
+				goto(targetClassId ? `/teacher/classes/${targetClassId}` : '/teacher');
+			}
+		} catch {
+			// ignore
+		} finally {
+			deletingStudent = false;
+			showDeleteModal = false;
 		}
 	}
 
@@ -95,23 +137,49 @@
 </svelte:head>
 
 <div class="min-h-dvh bg-[#0f0f2a]">
-	<header class="flex items-center justify-between border-b border-gray-800 bg-[#1a1a30] px-6 py-4">
+	<header class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-800 bg-[#1a1a30] px-6 py-4">
 		<div class="flex items-center gap-4">
 			<button
 				class="cursor-pointer rounded-xl border border-gray-600 bg-transparent px-3 py-2 text-sm text-gray-400 transition-all hover:border-amber-400/50 hover:text-white"
-				onclick={() => history.back()}
+				onclick={() =>
+					goto(student?.classId ? `/teacher/classes/${student.classId}` : '/teacher')}
 			>
-				← Volver
+				← Volver a la clase
 			</button>
-			<h1 class="text-lg font-bold text-white">{student?.displayName ?? '...'}</h1>
+			<div>
+				<h1 class="text-lg font-bold text-white">{student?.displayName ?? '...'}</h1>
+				{#if student?.pin}
+					<p class="text-xs text-cyan-300">🔒 PIN actual: <span class="font-mono">{student.pin}</span></p>
+				{/if}
+			</div>
 		</div>
-		<button
-			class="cursor-pointer rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-sm text-gray-300 transition-all hover:border-amber-400/50 hover:text-white disabled:opacity-50"
-			disabled={refreshing || loading}
-			onclick={() => loadStudent(true)}
-		>
-			{refreshing ? '⏳ Actualizando...' : '🔄 Actualizar'}
-		</button>
+		<div class="flex flex-wrap items-center gap-2.5">
+			{#if student?.pin}
+				<button
+					class="cursor-pointer rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-3.5 py-2 text-xs font-medium text-cyan-300 transition-all hover:bg-cyan-500/20 disabled:opacity-50"
+					disabled={resettingPin}
+					onclick={resetStudentPin}
+					title="Borrar el PIN actual para que el alumno pueda crear uno nuevo al entrar"
+				>
+					{resettingPin ? '⏳...' : '🔓 Reiniciar PIN'}
+				</button>
+			{/if}
+			<button
+				class="cursor-pointer rounded-xl border border-gray-600 bg-transparent px-4 py-2 text-sm text-gray-300 transition-all hover:border-amber-400/50 hover:text-white disabled:opacity-50"
+				disabled={refreshing || loading}
+				onclick={() => loadStudent(true)}
+			>
+				{refreshing ? '⏳ Actualizando...' : '🔄 Actualizar'}
+			</button>
+			{#if student}
+				<button
+					class="cursor-pointer rounded-xl border border-red-500/30 bg-transparent px-3.5 py-2 text-sm text-red-400 transition-all hover:bg-red-500/10"
+					onclick={() => (showDeleteModal = true)}
+				>
+					Eliminar
+				</button>
+			{/if}
+		</div>
 	</header>
 
 	<main class="mx-auto max-w-5xl px-6 py-8">
@@ -230,3 +298,30 @@
 		{/if}
 	</main>
 </div>
+
+{#if showDeleteModal && student}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+		<div class="w-full max-w-md rounded-3xl border border-red-500/30 bg-[#252540] p-8 text-center">
+			<div class="mb-4 text-5xl">⚠️</div>
+			<h2 class="mb-2 text-xl font-bold text-white">¿Eliminar a {student.displayName}?</h2>
+			<p class="mb-6 text-sm text-gray-400">
+				Se eliminarán todos los registros e intentos de este estudiante. Esta acción no se puede deshacer.
+			</p>
+			<div class="flex gap-3">
+				<button
+					class="flex-1 cursor-pointer rounded-xl border border-gray-600 bg-transparent px-4 py-3 text-sm text-gray-400 transition-all hover:text-white"
+					onclick={() => (showDeleteModal = false)}
+				>
+					Cancelar
+				</button>
+				<button
+					class="flex-1 cursor-pointer rounded-xl bg-red-500 px-4 py-3 font-bold text-white transition-all hover:scale-105 disabled:opacity-50"
+					disabled={deletingStudent}
+					onclick={deleteStudent}
+				>
+					{deletingStudent ? 'Eliminando...' : 'Eliminar'}
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}

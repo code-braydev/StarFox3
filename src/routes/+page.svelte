@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Modal, GoalModal } from '$lib/components/ui';
 	import { game } from '$lib/stores/game.svelte';
+	import { session } from '$lib/stores/session.svelte';
 	import { goto } from '$app/navigation';
 
 	let showNameModal = $state(false);
@@ -78,6 +79,16 @@
 		class="fixed right-8 bottom-8 z-30 h-8 w-8 animate-[fade-in_0.4s_ease_both,flicker_6s_ease-in-out_infinite_0.8s] border-r-[3px] border-b-[3px] border-interactive/80"
 	></div>
 
+	<!-- TEMPORAL: Botón Modo Dios en la esquina superior derecha para pruebas (borrar al final) -->
+	<button
+		type="button"
+		class="fixed top-4 right-4 z-40 cursor-pointer rounded-xl border-2 border-amber-400/60 bg-[#1e1e38]/90 px-3.5 py-2 text-xs font-bold text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.25)] backdrop-blur-md transition-all hover:scale-105 hover:border-amber-400 hover:bg-amber-500/20"
+		onclick={enterMasterMode}
+		title="Desbloquear todos los niveles, personajes, tienda y medallas (Solo pruebas)"
+	>
+		👑 Modo Dios
+	</button>
+
 	<!-- Titulo -->
 	<h1
 		class="relative z-20 m-0 animate-zoom-in text-center font-arcade text-[clamp(3rem,10vw,5rem)] tracking-[0.2em] text-[#FBBF24] [text-shadow:0_0_8px_rgba(0,0,0,0.9),0_2px_4px_rgba(0,0,0,0.8),0_0_30px_rgba(251,191,36,0.5),0_0_60px_rgba(251,191,36,0.25)] max-md:text-[3rem] max-md:tracking-[0.15em]"
@@ -109,27 +120,33 @@
 		>
 
 		<!-- Enlaces secundarios -->
-		<div class="mt-4 flex flex-col items-center gap-2">
-			<p class="text-xs text-gray-500">¿Tienes código de clase?</p>
-			<button
-				class="cursor-pointer rounded-xl border border-amber-400/40 bg-transparent px-6 py-2 text-sm text-amber-400 transition-all hover:bg-amber-400/10"
-				onclick={() => goto('/join')}
-			>
-				🚀 Unirme a mi clase
-			</button>
+		<div class="mt-4 flex flex-col items-center gap-2.5">
+			{#if session.isStudent && session.studentSession}
+				<div class="flex items-center gap-2 rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-1.5 text-xs text-cyan-300">
+					<span>🏫 Curso: <strong>{session.studentSession.className}</strong> ({session.studentSession.displayName})</span>
+					<button
+						type="button"
+						class="ml-1 cursor-pointer underline hover:text-white"
+						onclick={() => goto('/join')}
+					>
+						Cambiar
+					</button>
+				</div>
+			{:else}
+				<p class="text-xs text-gray-400">¿Tienes código de clase?</p>
+				<button
+					class="cursor-pointer rounded-xl border border-amber-400/40 bg-[#1e1e38]/70 px-6 py-2 text-sm text-amber-400 backdrop-blur-sm transition-all hover:scale-105 hover:border-amber-400 hover:bg-amber-400/15"
+					onclick={() => goto('/join')}
+				>
+					🚀 Unirme a mi clase
+				</button>
+			{/if}
 			<a
 				href="/teacher/login"
-				class="mt-2 text-xs text-gray-500 transition-colors hover:text-amber-400"
+				class="mt-1 text-xs text-gray-400 transition-colors hover:text-amber-400"
 			>
-				Soy profesor → Panel
+				👨‍🏫 Soy profesor → Panel
 			</a>
-			<button
-				type="button"
-				class="mt-1 cursor-pointer rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[0.7rem] text-emerald-300 transition-all hover:border-emerald-400 hover:bg-emerald-500/20"
-				onclick={enterMasterMode}
-			>
-				👑 Modo Maestro (Pruebas: Todo desbloqueado + 💎 ∞)
-			</button>
 		</div>
 	</div>
 </div>

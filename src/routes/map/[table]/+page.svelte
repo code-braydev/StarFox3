@@ -344,6 +344,7 @@
 	}
 
 	function recordAttempt(completed: boolean, stars: number) {
+		const attempted = completed ? totalQuestions : Math.max(1, currentIndex + 1);
 		telemetry.levelAttempt({
 			level: table,
 			mode: 'adventure',
@@ -354,6 +355,9 @@
 			completed,
 			startedAt: levelStartedAt
 		});
+		if (!completed) {
+			game.recordFailedAttempt(correctCount, attempted);
+		}
 	}
 
 	function handleBossObstacleHit() {

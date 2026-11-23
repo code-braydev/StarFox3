@@ -426,6 +426,16 @@ body {
 	--shadow-arcade: 0 0 20px rgba(34, 197, 94, 0.4), inset 0 0 20px rgba(34, 197, 94, 0.15);
 }
 
+[data-theme='theme-ice'] {
+	--color-bg: #081c24;
+	--color-surface: #123544;
+	--color-panel: #0c2633;
+	--color-interactive: #67e8f9;
+	--color-theme-border: #22d3ee;
+	--color-theme-glow: rgba(103, 232, 249, 0.45);
+	--shadow-arcade: 0 0 20px rgba(103, 232, 249, 0.4), inset 0 0 20px rgba(103, 232, 249, 0.15);
+}
+
 /* Aplicación dinámica del Tema UI sobre contenedores, headers y bordes del juego */
 html[data-theme]:not([data-theme='default']) .bg-\[\#0f0f2a\] {
 	background-color: var(--color-bg) !important;

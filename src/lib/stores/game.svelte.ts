@@ -1,5 +1,6 @@
 import { characters } from '$lib/constants/characters';
-import { getShopItemById } from '$lib/constants/shop';
+import { getShopItemById, shopItems, resolveActiveWorldTheme } from '$lib/constants/shop';
+import { medals } from '$lib/constants/medals';
 import { telemetry } from '$lib/sync/outbox';
 import { mergeProgress } from '$lib/sync/merge';
 import type { ProgressDoc } from '$lib/firebase/types';
@@ -55,6 +56,7 @@ function createGameStore() {
 		// --- Derivados ---
 		get isRegistered() { return state.player.name.length > 0; },
 		get hasGoal() { return state.player.goal.length > 0; },
+		get isGodMode() { return state.progress.gems >= 999999 && state.progress.levelsCompleted.length >= 25; },
 		get pendingMedals() { return pendingMedals; },
 		get currentPendingMedal() { return pendingMedals.length > 0 ? pendingMedals[0] : null; },
 
@@ -100,6 +102,15 @@ function createGameStore() {
 
 			checkAllAchievements(state, pendingMedals);
 
+			if (typeof window !== 'undefined') {
+				telemetry.progressSnapshot(this.toProgressSnapshot());
+			}
+		},
+
+		recordFailedAttempt(correct: number, attempted: number) {
+			state.progress.totalCorrect += Math.max(0, correct);
+			state.progress.totalAttempts += Math.max(1, attempted);
+			state.progress.updatedAt = Date.now();
 			if (typeof window !== 'undefined') {
 				telemetry.progressSnapshot(this.toProgressSnapshot());
 			}
@@ -238,6 +249,10 @@ function createGameStore() {
 
 			if (itemDef) {
 				state.shop.equipped[itemDef.category] = itemId;
+				if (itemDef.category === 'background') {
+					state.shop.equipped.theme =
+						itemDef.uiTheme ?? resolveActiveWorldTheme(itemId).uiTheme;
+				}
 			}
 
 			checkAllAchievements(state, pendingMedals);
@@ -245,6 +260,11 @@ function createGameStore() {
 		},
 		equipItem(category: 'background' | 'theme' | 'frame' | 'accessory', itemId: string | null) {
 			state.shop.equipped[category] = itemId;
+			if (category === 'background') {
+				state.shop.equipped.theme = itemId
+					? (getShopItemById(itemId)?.uiTheme ?? resolveActiveWorldTheme(itemId).uiTheme)
+					: null;
+			}
 		},
 
 		// --- Medallas y Logros ---
@@ -323,7 +343,10 @@ function createGameStore() {
 				telemetry.progressSnapshot(this.toProgressSnapshot());
 			}
 		},
-		hydrateFromServer(serverProgress: ProgressDoc | null) {
+		hydrateFromServer(serverProgress: ProgressDoc | null, replaceLocal = false) {
+			if (replaceLocal) {
+				this.resetProgress();
+			}
 			if (!serverProgress) return;
 			const merged = mergeProgress(
 				{
@@ -352,19 +375,20 @@ function createGameStore() {
 			state.stats.fastestCorrect = merged.stats.fastestCorrect;
 			state.stats.bestStreak = merged.stats.bestStreak;
 			state.stats.totalPlayTime = merged.stats.totalPlayTime;
+			checkAllAchievements(state);
 		},
 
-		// --- Resets & Modo Maestro (Pruebas) ---
-		activateMasterProfile(customName = 'MASTER FOX') {
+		// --- Resets & Modo Dios / Maestro (Pruebas) ---
+		activateMasterProfile(customName?: string) {
 			const allLevels = Array.from({ length: 25 }, (_, i) => i + 1);
 			const allStars: Record<number, number> = {};
 			for (const lvl of allLevels) {
 				allStars[lvl] = 3;
 			}
 
-			state.player.name = customName;
+			state.player.name = customName || state.player.name || 'MODO DIOS';
 			state.player.avatar = state.player.avatar || 'foxy';
-			state.player.goal = 'all_medals';
+			state.player.goal = state.player.goal || 'dominate';
 			state.introSeen = true;
 
 			state.progress.levelsCompleted = allLevels;
@@ -374,6 +398,11 @@ function createGameStore() {
 			state.progress.updatedAt = Date.now();
 
 			state.characters.unlocked = characters.map((c) => c.id);
+			state.shop.purchased = shopItems
+				.filter((item) => item.category !== 'potion')
+				.map((item) => item.id);
+			state.medals.earned = medals.map((m) => m.id);
+
 			recalcMaxEnergy(state.characters, state.energy);
 			state.energy.current = state.energy.max;
 			state.hearts.current = state.hearts.max;
@@ -381,23 +410,30 @@ function createGameStore() {
 			checkAllAchievements(state);
 		},
 		resetProgress() {
-			state.progress = { ...defaultGameState.progress };
+			state.progress = {
+				...defaultGameState.progress,
+				levelsCompleted: [],
+				stars: {}
+			};
 			state.energy = { ...defaultGameState.energy };
 			state.hearts = { ...defaultGameState.hearts };
-			state.characters = { ...defaultGameState.characters };
-			state.shop = { ...defaultGameState.shop };
-			state.medals = { ...defaultGameState.medals };
+			state.characters = {
+				...defaultGameState.characters,
+				unlocked: [...defaultGameState.characters.unlocked],
+				cooldowns: {}
+			};
+			state.shop = {
+				...defaultGameState.shop,
+				purchased: [],
+				equipped: { ...defaultGameState.shop.equipped }
+			};
+			state.medals = { earned: [] };
 			state.stats = { ...defaultGameState.stats };
+			pendingMedals.length = 0;
 		},
 		resetAll() {
 			state.player = { ...defaultGameState.player };
-			state.progress = { ...defaultGameState.progress };
-			state.hearts = { ...defaultGameState.hearts };
-			state.energy = { ...defaultGameState.energy };
-			state.characters = { ...defaultGameState.characters };
-			state.shop = { ...defaultGameState.shop };
-			state.medals = { ...defaultGameState.medals };
-			state.stats = { ...defaultGameState.stats };
+			this.resetProgress();
 			state.settings = { ...defaultGameState.settings };
 			state.introSeen = defaultGameState.introSeen;
 		}
