@@ -1,13 +1,49 @@
+import { ASSET_PATHS } from './assets';
+
+export type PassiveEffectId =
+	| 'gem_bonus_10'
+	| 'retry_first_error'
+	| 'gems_for_speed'
+	| 'energy_max_300'
+	| 'gems_scale_with_streak'
+	| 'timer_slow_15'
+	| 'timer_emergency_3s'
+	| 'shop_discount_plus_gems'
+	| 'protect_streak_first_error'
+	| 'first_error_no_damage'
+	| 'heal_on_streak_5'
+	| 'double_gems_perfect'
+	| 'faint_wrong_border'
+	| 'reveal_question_types'
+	| 'auto_revive';
+
+export type ActiveEffectId =
+	| 'reveal_one_wrong'
+	| 'show_hint_and_discard'
+	| 'remove_one_distractor'
+	| 'highlight_correct_2s'
+	| 'skip_question_correct'
+	| 'freeze_timer_10s'
+	| 'reset_question_timer'
+	| 'double_gems_3q'
+	| 'evade_next_error'
+	| 'protect_stars_2q'
+	| 'heal_one_heart'
+	| 'swap_question_easier'
+	| 'reduce_to_2_options'
+	| 'highlight_2_probable'
+	| 'burn_2_wrong';
+
 export interface CharacterPassive {
 	name: string;
 	description: string;
-	effect: string;
+	effect: PassiveEffectId;
 }
 
 export interface CharacterActive {
 	name: string;
 	description: string;
-	effect: string;
+	effect: ActiveEffectId;
 	cooldownType: 'level' | 'real';
 	cooldownMinutes?: number;
 }
@@ -35,15 +71,14 @@ export const characters: Character[] = [
 		unlockValue: 0,
 		passive: {
 			name: 'Astucia',
-			description: '+10% de gemas ganadas permanentemente.',
+			description: '+10% de gemas ganadas al completar cada nivel.',
 			effect: 'gem_bonus_10'
 		},
 		active: {
 			name: 'Radar Cósmico',
-			description: 'Revela 1 respuesta errónea al instante.',
+			description: 'Descarta 1 respuesta incorrecta y añade +5s al reloj.',
 			effect: 'reveal_one_wrong',
-			cooldownType: 'real',
-			cooldownMinutes: 15
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -56,15 +91,14 @@ export const characters: Character[] = [
 		unlockValue: 12,
 		passive: {
 			name: 'Lealtad',
-			description: 'El 1er error del nivel te permite reintentar la misma pregunta.',
+			description: 'El 1er error del nivel no resta vida y te deja reintentar la pregunta.',
 			effect: 'retry_first_error'
 		},
 		active: {
-			name: 'Olfato',
-			description: 'Tras un error, muestra la respuesta correcta.',
-			effect: 'show_correct_after_error',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			name: 'Olfato Guía',
+			description: 'Muestra una pista táctica en el monitor y descarta 1 opción incorrecta.',
+			effect: 'show_hint_and_discard',
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -77,15 +111,14 @@ export const characters: Character[] = [
 		unlockValue: 18,
 		passive: {
 			name: 'Reflejo Nocturno',
-			description: 'Si respondes en menos de 5s, ganas +1 gema extra.',
+			description: 'Si respondes en menos de 5 segundos, ganas +1 💎 extra al instante.',
 			effect: 'gems_for_speed'
 		},
 		active: {
 			name: 'Ojo Felino',
-			description: 'Elimina 1 distractor a elección.',
+			description: 'Elimina 1 opción incorrecta y otorga +3 💎 de inmediato.',
 			effect: 'remove_one_distractor',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -103,10 +136,9 @@ export const characters: Character[] = [
 		},
 		active: {
 			name: 'Cálculo Preciso',
-			description: 'Resalta la respuesta correcta por 2 segundos.',
+			description: 'Resalta la respuesta correcta en el tablero durante 3 segundos.',
 			effect: 'highlight_correct_2s',
-			cooldownType: 'real',
-			cooldownMinutes: 20
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -119,15 +151,14 @@ export const characters: Character[] = [
 		unlockValue: 50,
 		passive: {
 			name: 'Furia',
-			description: 'Cada acierto consecutivo (racha) aumenta las gemas que da cada pregunta.',
+			description: 'Cada 3 aciertos seguidos te da +1 💎 extra (+20% con 3 estrellas).',
 			effect: 'gems_scale_with_streak'
 		},
 		active: {
-			name: 'Aliento',
-			description: 'Salta 1 pregunta y la cuenta como correcta.',
+			name: 'Aliento Ígneo',
+			description: 'Destruye la pregunta actual y la cuenta automáticamente como correcta.',
 			effect: 'skip_question_correct',
-			cooldownType: 'real',
-			cooldownMinutes: 30
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -140,15 +171,14 @@ export const characters: Character[] = [
 		unlockValue: 25,
 		passive: {
 			name: 'Vuelo Rápido',
-			description: 'El temporizador global corre un 15% más lento en todo el nivel.',
+			description: 'Dispones de un 20% más de tiempo en todas las preguntas del nivel.',
 			effect: 'timer_slow_15'
 		},
 		active: {
 			name: 'Turbulencia',
-			description: 'Congela el tiempo 10 segundos.',
+			description: 'Congela el temporizador durante 10 segundos.',
 			effect: 'freeze_timer_10s',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -162,15 +192,14 @@ export const characters: Character[] = [
 		passive: {
 			name: 'Piel de Hielo',
 			description:
-				'Cuando el temporizador llega a 0, se pausa y te da 3 segundos de gracia (1 vez/nivel).',
+				'Cuando el reloj llega a 0, te otorga +5 segundos extra de gracia (1 vez/nivel).',
 			effect: 'timer_emergency_3s'
 		},
 		active: {
 			name: 'Glaciar',
-			description: 'Reinicia el reloj de la pregunta actual.',
+			description: 'Reinicia el reloj de la pregunta actual y añade +10 segundos extra.',
 			effect: 'reset_question_timer',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -183,15 +212,14 @@ export const characters: Character[] = [
 		unlockValue: 50,
 		passive: {
 			name: 'Negociante',
-			description: '15% de descuento en la tienda + 1 gema extra por acierto.',
+			description: '15% de descuento en la tienda + 1 💎 extra por acierto.',
 			effect: 'shop_discount_plus_gems'
 		},
 		active: {
 			name: 'Fiebre de Oro',
-			description: 'Duplica las gemas obtenidas en las próximas 3 preguntas.',
+			description: 'Las próximas 3 respuestas correctas otorgan +2 💎 extra al instante.',
 			effect: 'double_gems_3q',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -209,10 +237,9 @@ export const characters: Character[] = [
 		},
 		active: {
 			name: 'Emboscada',
-			description: 'El próximo error no resta corazón (evita 1 daño).',
+			description: 'Activa un escudo: tu próximo error no restará corazón.',
 			effect: 'evade_next_error',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -229,11 +256,10 @@ export const characters: Character[] = [
 			effect: 'first_error_no_damage'
 		},
 		active: {
-			name: 'Muro',
+			name: 'Muro Férreo',
 			description: 'Los próximos 2 errores no afectan la calificación de estrellas.',
 			effect: 'protect_stars_2q',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -251,11 +277,10 @@ export const characters: Character[] = [
 			effect: 'heal_on_streak_5'
 		},
 		active: {
-			name: 'Curación',
-			description: 'Recupera 1 corazón perdido de inmediato.',
+			name: 'Curación Acuática',
+			description: 'Recupera 1 corazón de inmediato (o activa escudo si tienes vida máxima).',
 			effect: 'heal_one_heart',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -268,15 +293,14 @@ export const characters: Character[] = [
 		unlockValue: 65,
 		passive: {
 			name: 'Precisión de Lince',
-			description: 'Si respondes sin errores previos en el nivel, las gemas valen el doble.',
+			description: 'Si completas el nivel sin errores, las gemas ganadas valen el doble.',
 			effect: 'double_gems_perfect'
 		},
 		active: {
 			name: 'Instinto',
-			description: 'Cambia la pregunta actual por otra diferente (más fácil).',
+			description: 'Cambia la pregunta actual por una multiplicación sencilla (×1 o ×2).',
 			effect: 'swap_question_easier',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -290,15 +314,14 @@ export const characters: Character[] = [
 		passive: {
 			name: 'Sangre Fría',
 			description:
-				'Las opciones incorrectas aparecen con un borde más tenue (descarte visual sutil).',
+				'Al iniciar el nivel, la primera pregunta ya tiene 1 opción incorrecta descartada.',
 			effect: 'faint_wrong_border'
 		},
 		active: {
 			name: 'Constricción',
-			description: 'Reduce inmediatamente las opciones disponibles a solo 2.',
+			description: 'Descarta 1 opción incorrecta en esta pregunta y también en la siguiente.',
 			effect: 'reduce_to_2_options',
-			cooldownType: 'level',
-			cooldownMinutes: 0
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -311,15 +334,14 @@ export const characters: Character[] = [
 		unlockValue: 16,
 		passive: {
 			name: 'Ecolocalización',
-			description: 'Al iniciar el nivel, se te revela el tipo de pregunta de todas las rondas.',
+			description: 'El monitor revela una pista matemática sobre el resultado en cada ronda.',
 			effect: 'reveal_question_types'
 		},
 		active: {
-			name: 'Eco',
-			description: 'Destaca visualmente las 2 respuestas más probables.',
+			name: 'Eco Sónico',
+			description: 'Descarta 1 opción incorrecta y congela el reloj durante 6 segundos.',
 			effect: 'highlight_2_probable',
-			cooldownType: 'real',
-			cooldownMinutes: 20
+			cooldownType: 'level'
 		}
 	},
 	{
@@ -338,10 +360,9 @@ export const characters: Character[] = [
 		},
 		active: {
 			name: 'Llamarada',
-			description: 'Quema y elimina 2 respuestas incorrectas de golpe.',
+			description: 'Quema y elimina todas las respuestas incorrectas de la pregunta actual.',
 			effect: 'burn_2_wrong',
-			cooldownType: 'real',
-			cooldownMinutes: 30
+			cooldownType: 'level'
 		}
 	}
 ];
@@ -364,4 +385,12 @@ export function getTotalGemsNeeded(): number {
 	return characters
 		.filter((c) => c.unlockType === 'gems')
 		.reduce((sum, c) => sum + c.unlockValue, 0);
+}
+
+export function getCharacterHead(id: string): string {
+	return ASSET_PATHS.characters.head(id);
+}
+
+export function getCharacterBody(id: string): string {
+	return ASSET_PATHS.characters.body(id);
 }

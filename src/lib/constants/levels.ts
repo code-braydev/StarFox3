@@ -988,3 +988,105 @@ export const levelInfo: Record<number, LevelInfo> = {
 		}
 	}
 };
+
+export type LevelDifficulty =
+	| 'facil'
+	| 'intermedio'
+	| 'experto'
+	| 'maestro'
+	| 'legendario'
+	| 'jefe';
+
+export type LevelMechanic =
+	| 'palancas'
+	| 'teclado'
+	| 'canon'
+	| 'cables'
+	| 'carga'
+	| 'matriz'
+	| 'radar'
+	| 'boss';
+
+export function getLevelDifficulty(table: number): {
+	id: LevelDifficulty;
+	label: string;
+	badgeClass: string;
+} {
+	if (table === 25) {
+		return {
+			id: 'jefe',
+			label: 'Jefe Final',
+			badgeClass: 'border-rose-500/40 bg-rose-500/15 text-rose-300'
+		};
+	}
+	if (table >= 22) {
+		return {
+			id: 'legendario',
+			label: 'Legendario',
+			badgeClass: 'border-fuchsia-400/40 bg-fuchsia-500/15 text-fuchsia-300'
+		};
+	}
+	if (table >= 18) {
+		return {
+			id: 'maestro',
+			label: 'Maestro',
+			badgeClass: 'border-amber-400/40 bg-amber-500/15 text-amber-300'
+		};
+	}
+	if (table >= 13) {
+		return {
+			id: 'experto',
+			label: 'Experto',
+			badgeClass: 'border-cyan-400/40 bg-cyan-500/15 text-cyan-300'
+		};
+	}
+	if (table >= 7) {
+		return {
+			id: 'intermedio',
+			label: 'Intermedio',
+			badgeClass: 'border-blue-400/40 bg-blue-500/15 text-blue-300'
+		};
+	}
+	return {
+		id: 'facil',
+		label: 'Fácil',
+		badgeClass: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-300'
+	};
+}
+
+export function getLevelMechanic(table: number): {
+	id: LevelMechanic;
+	label: string;
+	icon: string;
+} {
+	if (table === 25) {
+		return { id: 'boss', label: 'Combate Espacial Real', icon: '👾' };
+	}
+	const mechanicMap: Record<number, { id: LevelMechanic; label: string; icon: string }> = {
+		1: { id: 'palancas', label: 'Palancas de Cabina', icon: '🎛️' },
+		2: { id: 'teclado', label: 'Teclado de Reactor', icon: '🔢' },
+		3: { id: 'palancas', label: 'Prismas de Cristal', icon: '💎' },
+		4: { id: 'canon', label: 'Cañón Antiaéreo', icon: '🔫' },
+		5: { id: 'palancas', label: 'Vórtice de Nebulosa', icon: '🌀' },
+		6: { id: 'teclado', label: 'Sintetizador de Forja', icon: '⚒️' },
+		7: { id: 'cables', label: 'Puente de Circuitos', icon: '🔌' },
+		8: { id: 'canon', label: 'Torreta del Vacío', icon: '☄️' },
+		9: { id: 'carga', label: 'Cápsulas de Cura', icon: '📦' },
+		10: { id: 'cables', label: 'Cables de Frecuencia', icon: '⚡' },
+		11: { id: 'canon', label: 'Cañón de Pares', icon: '🎯' },
+		12: { id: 'cables', label: 'Red de Impares', icon: '🔗' },
+		13: { id: 'teclado', label: 'Código Gemelo (×11)', icon: '⌨️' },
+		14: { id: 'teclado', label: 'Terminal Doce (×12)', icon: '📟' },
+		15: { id: 'canon', label: 'Disparo Relámpago', icon: '⚡' },
+		16: { id: 'cables', label: 'Filtro Anti-Trampas', icon: '🛡️' },
+		17: { id: 'carga', label: 'Báscula de Suministros', icon: '🛒' },
+		18: { id: 'radar', label: 'Radar de Incógnitas', icon: '📡' },
+		19: { id: 'matriz', label: 'Escáner de Matriz', icon: '📐' },
+		20: { id: 'radar', label: 'Sonar de Verificación', icon: '🛰️' },
+		21: { id: 'matriz', label: 'Calibrador de Series', icon: '📊' },
+		22: { id: 'radar', label: 'Intercepción Orbital', icon: '🎯' },
+		23: { id: 'carga', label: 'Despacho de Emergencia', icon: '🚀' },
+		24: { id: 'matriz', label: 'Núcleo Pre-Jefe', icon: '🔥' }
+	};
+	return mechanicMap[table] ?? { id: 'palancas', label: 'Control de Cabina', icon: '🎛️' };
+}

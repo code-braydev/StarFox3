@@ -129,9 +129,12 @@
 			<!-- Avatar de Foxy (grande) -->
 			<div class="mb-4 animate-[float-spaceship_3s_ease-in-out_infinite]">
 				<img
-					src="/img/avatar-foxy.webp"
+					src="/img/characters/heads/foxy.png"
 					alt="Foxy"
-					class="h-32 w-32 rounded-full border-4 border-amber-400 bg-[#1E1E2F] p-2 shadow-[0_0_30px_rgba(251,191,36,0.4)] max-md:h-24 max-md:w-24"
+					class="h-32 w-32 rounded-full border-4 border-amber-400 bg-[#1E1E2F] p-1 shadow-[0_0_30px_rgba(251,191,36,0.4)] max-md:h-24 max-md:w-24 object-cover"
+					onerror={(e) => {
+						(e.currentTarget as HTMLImageElement).src = '/img/avatar-foxy.webp';
+					}}
 				/>
 			</div>
 

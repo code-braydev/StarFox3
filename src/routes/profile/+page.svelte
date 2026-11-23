@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { game } from '$lib/stores/game.svelte';
-	import { characters, type Character } from '$lib/constants/characters';
+	import { session } from '$lib/stores/session.svelte';
+	import { characters, getCharacterHead, getCharacterBody, type Character } from '$lib/constants/characters';
+	import { getEquippedBackground, handleAvatarError } from '$lib/constants/assets';
 	import { playClick } from '$lib/audio/audio';
-	import CharacterCard from '$lib/components/profile/CharacterCard.svelte';
+	import { CharacterCard } from '$lib/components/profile';
 
 	let selectedChar = $derived(
 		characters.find((c) => c.id === game.characters.selected) ?? characters[0]
@@ -28,9 +30,14 @@
 	<title>Perfil - Star Fox 3</title>
 </svelte:head>
 
-<div class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-[#0f0f2a]">
+<div
+	class="relative flex min-h-dvh w-full flex-col items-center overflow-hidden bg-[#0f0f2a] bg-cover bg-center bg-no-repeat"
+	style="background-image: url('{getEquippedBackground(game.shop.equipped.background)}');"
+>
+	<div class="absolute inset-0 bg-slate-950/55"></div>
+
 	<header
-		class="relative z-20 flex w-full items-center justify-between px-6 py-4 max-md:px-4 max-md:py-3"
+		class="theme-header relative z-20 flex w-full items-center justify-between border-b-2 border-amber-400/40 bg-[#252540]/75 px-6 py-4 backdrop-blur-md max-md:px-4 max-md:py-3"
 	>
 		<button
 			class="cursor-pointer rounded-xl border border-gray-600 bg-[#252540] px-4 py-2 text-xs text-gray-300 transition-all hover:border-amber-400/50 hover:text-white max-md:px-3 max-md:text-[0.65rem]"
@@ -68,49 +75,82 @@
 			</div>
 		</div>
 
+		<!-- Curso Vinculado (Flujo Estudiante - Profesor) -->
+		<div class="w-full max-w-md rounded-2xl border border-cyan-400/30 bg-[#252540]/90 p-4">
+			{#if session.isStudent && session.studentSession}
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div>
+						<div class="text-xs font-bold text-cyan-400">🏫 CURSO VINCULADO</div>
+						<div class="mt-0.5 text-sm font-bold text-white">
+							{session.studentSession.className} · <span class="font-mono text-amber-400">{session.studentSession.classCode}</span>
+						</div>
+						<div class="text-xs text-gray-400">Alumno: {session.studentSession.displayName}</div>
+					</div>
+					<div class="flex gap-2">
+						<button
+							type="button"
+							class="cursor-pointer rounded-xl border border-amber-400/40 bg-transparent px-3 py-1.5 text-xs text-amber-300 transition-all hover:bg-amber-400/10"
+							onclick={() => goto('/join')}
+						>
+							Cambiar
+						</button>
+						<button
+							type="button"
+							class="cursor-pointer rounded-xl border border-gray-600 bg-transparent px-3 py-1.5 text-xs text-gray-400 transition-all hover:text-white"
+							onclick={() => session.studentLeave()}
+						>
+							Salir
+						</button>
+					</div>
+				</div>
+			{:else}
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div>
+						<div class="text-xs font-bold text-cyan-400">🏫 ¿TIENES CÓDIGO DE CLASE?</div>
+						<div class="mt-0.5 text-xs text-gray-300">
+							Vincúlate al curso de tu profesor para sincronizar tu progreso.
+						</div>
+					</div>
+					<button
+						type="button"
+						class="cursor-pointer rounded-xl bg-amber-400 px-4 py-2 text-xs font-bold text-[#1E1E2F] transition-all hover:scale-105"
+						onclick={() => goto('/join')}
+					>
+						🚀 Unirme a clase
+					</button>
+				</div>
+			{/if}
+		</div>
+
 		<!-- Personaje actual -->
 		<div
 			class="w-full max-w-md rounded-3xl border-2 border-amber-400/30 bg-[#252540] p-6 text-center"
 		>
 			<h2 class="mb-3 text-sm font-bold text-[#FBBF24]">Personaje Actual</h2>
-			<div class="mb-4 flex items-center justify-center gap-4">
-				<div
-					class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-amber-400/50 bg-[#1E1E2F] text-3xl"
-				>
-					{selectedChar.animal === 'Zorro'
-						? '🦊'
-						: selectedChar.animal === 'Perro'
-							? '🐶'
-							: selectedChar.animal === 'Gato'
-								? '🐱'
-								: selectedChar.animal === 'Robot'
-									? '🤖'
-									: selectedChar.animal === 'Dragón'
-										? '🐉'
-										: selectedChar.animal === 'Ardilla Voladora'
-											? '🐿️'
-											: selectedChar.animal === 'Morsa'
-												? '🦭'
-												: selectedChar.animal === 'Mapache'
-													? '🦝'
-													: selectedChar.animal === 'Camaleón'
-														? '🦎'
-														: selectedChar.animal === 'Oso Pardo'
-															? '🐻'
-															: selectedChar.animal === 'Axolote'
-																? '🦎'
-																: selectedChar.animal === 'Lince'
-																	? '🐆'
-																	: selectedChar.animal === 'Cobra'
-																		? '🐍'
-																		: selectedChar.animal === 'Murciélago Cyborg'
-																			? '🦇'
-																			: '🔥'}
+			<div class="mb-4 flex flex-col items-center justify-center gap-3">
+				<!-- Ilustración de Cuerpo Completo -->
+				<div class="relative flex h-52 w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-[#1a1a38] to-[#121226] p-2 border border-amber-400/20 shadow-[inner_0_0_20px_rgba(0,0,0,0.5)]">
+					<img
+						src={getCharacterBody(selectedChar.id)}
+						alt={selectedChar.name}
+						class="h-full w-full object-contain animate-[float_4s_ease-in-out_infinite] drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]"
+						onerror={(e) => handleAvatarError(e, getCharacterHead(selectedChar.id))}
+					/>
 				</div>
-				<div class="text-left">
-					<div class="text-lg font-bold text-white">{selectedChar.name}</div>
-					<div class="text-[0.75rem] text-gray-400">
-						{selectedChar.element} / {selectedChar.role}
+
+				<div class="flex items-center gap-3">
+					<div class="h-12 w-12 overflow-hidden rounded-full border-2 border-amber-400/60 bg-[#1E1E2F]">
+						<img
+							src={getCharacterHead(selectedChar.id)}
+							alt={selectedChar.name}
+							class="h-full w-full object-cover"
+						/>
+					</div>
+					<div class="text-left">
+						<div class="text-lg font-bold text-white">{selectedChar.name}</div>
+						<div class="text-[0.75rem] text-gray-400">
+							{selectedChar.element} / {selectedChar.role}
+						</div>
 					</div>
 				</div>
 			</div>
@@ -150,6 +190,20 @@
 					/>
 				{/each}
 			</div>
+		</div>
+
+		<!-- Controles de Reinicio -->
+		<div class="mt-4 flex flex-wrap justify-center gap-3 border-t border-gray-800 pt-6 w-full">
+			<button
+				class="cursor-pointer rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-2 text-xs text-red-300 transition-all hover:bg-red-500/20"
+				onclick={() => {
+					session.studentLeave();
+					game.resetAll();
+					goto('/');
+				}}
+			>
+				🔄 Reiniciar Progreso Completo
+			</button>
 		</div>
 	</div>
 </div>

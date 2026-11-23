@@ -15,6 +15,7 @@
 	let equippedAccessory = $derived(game.shop.equipped.accessory);
 
 	let isJumping = $state(false);
+	let isCollapsed = $state(false);
 	let imageFailed = $state(false);
 	let accessoryImageFailed = $state(false);
 
@@ -41,6 +42,9 @@
 
 	function handleCharacterClick() {
 		if (game.soundEnabled) playClick();
+		if (isCollapsed) {
+			isCollapsed = false;
+		}
 		isJumping = true;
 		setTimeout(() => {
 			isJumping = false;
@@ -75,50 +79,43 @@
 	};
 </script>
 
-<div class="flex w-full items-center gap-4 max-md:flex-col">
-	<!-- Contenedor del Personaje con sus capas (Marco + Personaje + Accesorio) -->
+<div class="flex items-end gap-2.5">
+	<!-- Contenedor compacto del Personaje con sus capas (Marco + Personaje + Accesorio) -->
 	<div
 		class="relative flex flex-shrink-0 cursor-pointer flex-col items-center transition-transform duration-300 select-none
-			{isJumping ? '-translate-y-4 scale-110' : 'hover:scale-105'}"
+			{isJumping ? '-translate-y-3 scale-110' : 'hover:scale-105'}"
 		onclick={handleCharacterClick}
 		role="button"
 		tabindex="0"
 		onkeydown={(e) => e.key === 'Enter' && handleCharacterClick()}
-		title="Haz clic para interactuar con tu compañero"
+		title="Haz clic para interactuar con {character.name}"
 	>
-		<!-- Avatar Base con animación suave -->
-		<div class="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2a2a4e] to-[#15152a] p-1.5 shadow-[0_0_25px_rgba(251,191,36,0.25)] max-md:h-20 max-md:w-20">
-			
-			<!-- RECURSO: static/img/characters/{character.id}.webp -->
-			{#if character.id === 'foxy' && !imageFailed}
+		<!-- Avatar Base compacto -->
+		<div class="relative flex h-18 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2a2a4e]/95 to-[#15152a]/95 p-1 shadow-[0_0_20px_rgba(251,191,36,0.25)] backdrop-blur-md max-md:h-14 max-md:w-12">
+			<!-- RECURSO: static/img/characters/bodies/{character.id}.png (Fallback: heads/{character.id}.png) -->
+			{#if !imageFailed}
 				<img
-					src="/img/avatar-foxy.webp"
+					src="/img/characters/bodies/{character.id}.png"
 					alt={character.name}
-					class="h-full w-full rounded-xl object-contain"
-					onerror={() => {
-						imageFailed = true;
-					}}
-				/>
-			{:else if !imageFailed}
-				<!-- RECURSO: static/img/characters/{character.id}.webp (Colocar aquí la imagen del personaje) -->
-				<img
-					src="/img/characters/{character.id}.webp"
-					alt={character.name}
-					class="h-full w-full rounded-xl object-contain"
-					onerror={() => {
-						imageFailed = true;
+					class="h-full w-full rounded-xl object-contain filter drop-shadow-[0_3px_6px_rgba(0,0,0,0.6)]"
+					onerror={(e) => {
+						const img = e.currentTarget as HTMLImageElement;
+						if (!img.src.includes('/heads/')) {
+							img.src = `/img/characters/heads/${character.id}.png`;
+						} else {
+							imageFailed = true;
+						}
 					}}
 				/>
 			{:else}
-				<!-- FALLBACK TEMPORAL si no existe la imagen -->
-				<div class="flex h-full w-full items-center justify-center rounded-xl bg-amber-400/10 text-4xl">
+				<div class="flex h-full w-full items-center justify-center rounded-xl bg-amber-400/10 text-2xl">
 					{characterEmojiMap[character.id] ?? '🦊'}
 				</div>
 			{/if}
 
 			<!-- RECURSO: static/img/accessories/{equippedAccessory}.png -->
 			{#if equippedAccessory}
-				<div class="pointer-events-none absolute -top-3 -right-2 z-20 flex h-10 w-10 items-center justify-center">
+				<div class="pointer-events-none absolute -top-2.5 -right-2 z-20 flex h-7 w-7 items-center justify-center">
 					{#if !accessoryImageFailed}
 						<img
 							src="/img/accessories/{equippedAccessory}.png"
@@ -129,8 +126,7 @@
 							}}
 						/>
 					{:else}
-						<!-- FALLBACK TEMPORAL DEL ACCESORIO -->
-						<span class="text-2xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+						<span class="text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
 							{accessoryEmojiMap[equippedAccessory] ?? '✨'}
 						</span>
 					{/if}
@@ -140,51 +136,63 @@
 			<!-- RECURSO: static/img/frames/{equippedFrame}.png -->
 			{#if equippedFrame}
 				<div class="pointer-events-none absolute inset-0 z-30">
-					<!-- RECURSO DE MARCO: static/img/frames/{equippedFrame}.png -->
-					<!-- Si aún no tienes el PNG, aplicamos un borde temático con resplandor neón -->
 					<div
-						class="h-full w-full rounded-2xl border-[3px]
-							{equippedFrame === 'frame-fire' ? 'border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.8)]' : ''}
-							{equippedFrame === 'frame-wood' ? 'border-amber-700 shadow-[0_0_10px_rgba(180,83,9,0.7)]' : ''}
-							{equippedFrame === 'frame-gold' ? 'border-amber-300 shadow-[0_0_20px_rgba(252,211,77,0.9)]' : ''}
-							{equippedFrame === 'frame-crystal' ? 'border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.9)]' : ''}
-							{equippedFrame === 'frame-robot' ? 'border-slate-300 shadow-[0_0_15px_rgba(148,163,184,0.8)]' : ''}
+						class="h-full w-full rounded-2xl border-2
+							{equippedFrame === 'frame-fire' ? 'border-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.8)]' : ''}
+							{equippedFrame === 'frame-wood' ? 'border-amber-700 shadow-[0_0_8px_rgba(180,83,9,0.7)]' : ''}
+							{equippedFrame === 'frame-gold' ? 'border-amber-300 shadow-[0_0_15px_rgba(252,211,77,0.9)]' : ''}
+							{equippedFrame === 'frame-crystal' ? 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.9)]' : ''}
+							{equippedFrame === 'frame-robot' ? 'border-slate-300 shadow-[0_0_12px_rgba(148,163,184,0.8)]' : ''}
 						"
 					></div>
 				</div>
 			{:else}
-				<div class="pointer-events-none absolute inset-0 rounded-2xl border-2 border-amber-400/50"></div>
+				<div class="pointer-events-none absolute inset-0 rounded-2xl border border-amber-400/50"></div>
 			{/if}
 		</div>
 
 		<!-- Etiqueta del Compañero -->
-		<div class="mt-1 flex items-center gap-1 rounded-md bg-[#16162a]/90 px-2 py-0.5 border border-amber-400/30">
-			<span class="font-arcade text-[0.6rem] text-amber-400">{character.name}</span>
-			<span class="text-[0.55rem] text-gray-400">({character.role})</span>
+		<div class="mt-1 flex items-center gap-1 rounded-md border border-amber-400/30 bg-[#16162a]/95 px-1.5 py-0.5 shadow-sm">
+			<span class="font-arcade text-[0.5rem] text-amber-400">{character.name}</span>
 		</div>
 	</div>
 
-	<!-- Bocadillo de Diálogo (Speech Bubble espacial) -->
-	<div
-		class="relative flex-1 rounded-2xl border border-amber-400/30 bg-gradient-to-br from-[#23233e] to-[#16162c] p-4 shadow-[0_0_20px_rgba(251,191,36,0.12)] max-md:w-full"
-	>
-		<!-- Flecha del bocadillo para desktop (apunta a la izquierda al personaje) -->
+	<!-- Bocadillo de Diálogo compacto abajo a la izquierda -->
+	{#if !isCollapsed}
 		<div
-			class="max-md:hidden absolute top-6 -left-2.5 h-0 w-0 border-t-[8px] border-r-[10px] border-b-[8px] border-t-transparent border-r-[#23233e] border-b-transparent"
-		></div>
-		<!-- Flecha para móvil (apunta arriba al personaje) -->
-		<div
-			class="md:hidden absolute -top-2.5 left-1/2 -translate-x-1/2 h-0 w-0 border-r-[8px] border-b-[10px] border-l-[8px] border-r-transparent border-b-[#23233e] border-l-transparent"
-		></div>
+			class="relative max-w-[270px] rounded-2xl border border-amber-400/35 bg-[#1a1a35]/95 px-3.5 py-2.5 shadow-[0_8px_25px_rgba(0,0,0,0.6)] backdrop-blur-md max-sm:max-w-[215px]"
+		>
+			<!-- Flecha del bocadillo (apunta a la izquierda al personaje) -->
+			<div
+				class="absolute bottom-5 -left-2 h-0 w-0 border-t-[6px] border-r-[8px] border-b-[6px] border-t-transparent border-r-[#1a1a35] border-b-transparent"
+			></div>
 
-		<div class="flex items-center justify-between border-b border-gray-700/50 pb-1.5 mb-1.5">
-			<span class="font-arcade text-[0.6rem] tracking-wider text-amber-400">
-				TRANSMISIÓN DE CABINA
-			</span>
-			<span class="text-[0.65rem] text-cyan-400 font-arcade">EN VIVO</span>
+			<div class="mb-1 flex items-center justify-between gap-2 border-b border-gray-700/50 pb-1">
+				<span class="font-arcade text-[0.5rem] tracking-wider text-amber-400">
+					📡 {character.name.toUpperCase()} · {character.role.toUpperCase()}
+				</span>
+				<button
+					type="button"
+					class="cursor-pointer text-[0.65rem] leading-none text-gray-400 hover:text-white"
+					onclick={() => (isCollapsed = true)}
+					title="Minimizar diálogo"
+					aria-label="Minimizar diálogo"
+				>
+					✕
+				</button>
+			</div>
+			<p class="text-[0.72rem] leading-snug text-gray-200 max-sm:text-[0.68rem]">
+				{dialogMessage}
+			</p>
 		</div>
-		<p class="text-[0.85rem] leading-relaxed text-gray-200 max-md:text-[0.8rem]">
-			{dialogMessage}
-		</p>
-	</div>
+	{:else}
+		<button
+			type="button"
+			class="mb-4 flex cursor-pointer items-center gap-1 rounded-full border border-amber-400/40 bg-[#1a1a35]/90 px-2.5 py-1 text-[0.65rem] text-amber-300 shadow-md backdrop-blur-md transition-all hover:border-amber-400 hover:scale-105"
+			onclick={() => (isCollapsed = false)}
+			title="Mostrar mensaje"
+		>
+			💬 <span class="max-sm:hidden">Mensaje</span>
+		</button>
+	{/if}
 </div>

@@ -35,9 +35,12 @@
 		<!-- Avatar de Foxy -->
 		<div class="flex-shrink-0">
 			<img
-				src="/img/avatar-foxy.webp"
+				src="/img/characters/heads/foxy.png"
 				alt="Foxy"
-				class="h-12 w-12 rounded-full border-2 border-amber-400 bg-[#1E1E2F] p-1"
+				class="h-12 w-12 rounded-full border-2 border-amber-400 bg-[#1E1E2F] p-0.5 object-cover"
+				onerror={(e) => {
+					(e.currentTarget as HTMLImageElement).src = '/img/avatar-foxy.webp';
+				}}
 			/>
 		</div>
 
